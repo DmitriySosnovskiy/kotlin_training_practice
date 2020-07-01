@@ -6,7 +6,7 @@
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
     <children>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="lol" />
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="говно непонятное" />
         <Button fx:id="testButton" mnemonicParsing="false" text="Button" />
     </children>
 </VBox>
