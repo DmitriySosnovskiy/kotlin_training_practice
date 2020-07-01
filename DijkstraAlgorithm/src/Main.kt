@@ -10,7 +10,7 @@ class Main : Application() {
 
     override fun start(primaryStage: Stage?) {
         System.setProperty("prism.lcdtext", "false") // for beautiful fonts on linux
-        primaryStage?.scene = Scene(load<Parent?>(Main.javaClass.getResource(layout)))
+        primaryStage?.scene = Scene(load<Parent?>(Main::class.java.getResource(layout)))
         primaryStage?.show()
     }
 
