@@ -5,7 +5,6 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 
 class Main : Application() {
-
     val layout = "/res/layout.fxml"
 
     override fun start(primaryStage: Stage?) {
@@ -20,4 +19,5 @@ class Main : Application() {
             launch(Main::class.java)
         }
     }
+
 }
