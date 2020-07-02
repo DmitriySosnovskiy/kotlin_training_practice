@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.BorderPane?>
-
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <Label text="new commit" BorderPane.alignment="CENTER" />
+      <Canvas id="canvas_graph" height="341.0" width="354.0" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>
