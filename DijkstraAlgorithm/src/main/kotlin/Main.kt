@@ -1,25 +1,16 @@
-import javafx.application.Application
-import javafx.fxml.FXMLLoader
-import javafx.scene.Parent
-import javafx.scene.Scene
-import javafx.scene.text.FontWeight
-import javafx.stage.Stage
-import tornadofx.*
+import views.MainWindow
+import java.awt.Dimension
+import javax.swing.JFrame
 
-class HelloWorldApp : Application(){
-
-    override fun start(primaryStage: Stage?) {
-        var root : Parent = FXMLLoader.load(javaClass.classLoader.getResource("MainView.fxml"))
-        var scene = Scene(root)
-
-        primaryStage?.scene = scene
-        primaryStage?.show()
-    }
-
-    companion object {
+class Main {
+    companion object{
         @JvmStatic
         fun main(args: Array<String>) {
-            launch<HelloWorldApp>()
+            val frame = JFrame()
+            frame.size = Dimension(1000, 600)
+
+            frame.add(MainWindow())
+            frame.isVisible = true
         }
     }
 }

@@ -6,11 +6,12 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'no.tornado:tornadofx:1.7.20'
+    implementation 'com.github.jgraph:jgraphx:4.0.6'
 }
 
 compileKotlin {
