@@ -6,22 +6,44 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.geom.Ellipse2D
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 import kotlin.math.pow
 
+interface GraphViewObserver {
+    fun onSheetDragged(offsetX: Int, offsetY: Int)
+}
 
 class GraphView : JPanel(), MouseListener, MouseMotionListener {
 
     init {
         background = Color.WHITE
-
-
-
         addMouseListener(this)
         addMouseMotionListener(this)
     }
 
+    var sheetDraggingObserver: GraphViewObserver? = null
+
     private val nodes = ArrayList<UINode>()
-    private var currentGraphViewState: GraphViewStates = GraphViewStates.DefaultState
+    private var currentGraphViewState: GraphViewState = GraphViewState.DefaultState
+        set(newGraphViewState) {
+            when(newGraphViewState)
+            {
+                GraphViewState.DefaultState -> {
+
+                }
+
+                is GraphViewState.SheetMovingState -> {
+
+                }
+
+                is GraphViewState.NodeDraggingState -> {
+
+                }
+            }
+            field = newGraphViewState
+        }
+
+
 
     override fun paintComponent(graphics: Graphics) {
         super.paintComponent(graphics)
@@ -39,7 +61,7 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     }
 
     override fun mouseReleased(mouseEvent: MouseEvent) {
-        currentGraphViewState = GraphViewStates.DefaultState
+        currentGraphViewState = GraphViewState.DefaultState
     }
 
     override fun mouseEntered(mouseEvent: MouseEvent) {
@@ -52,12 +74,17 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
 
             //одиночное нажатие
             1 -> {
+                when(mouseEvent.button) {
+                    MouseEvent.BUTTON3 -> {
 
+                    }
+                }
             }
 
             //Двойной клик
             2 -> {
-                addNode(mouseEvent.x, mouseEvent.y)
+                if(mouseEvent.button == MouseEvent.BUTTON1)
+                    addNode(mouseEvent.x, mouseEvent.y)
             }
         }
     }
@@ -75,39 +102,64 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     }
 
     override fun mouseDragged(mouseEvent: MouseEvent) {
-
         val dragCoordinate = Coordinate(mouseEvent.x, mouseEvent.y)
 
-        when(currentGraphViewState)
-        {
-            is GraphViewStates.NodeDraggingState -> {
-                val draggableState = currentGraphViewState as GraphViewStates.NodeDraggingState
+        if(SwingUtilities.isRightMouseButton(mouseEvent)){
+            if (currentGraphViewState == GraphViewState.DefaultState ||
+                currentGraphViewState is GraphViewState.SheetMovingState)
+                onRightMouseButtonDragging(dragCoordinate)
+        }
 
-                draggableState.draggingNode.coordinate = dragCoordinate + draggableState.draggingOffset
-            }
-
-            is GraphViewStates.MovingDraggedMouseState -> {
-            }
-
-            is GraphViewStates.DefaultState -> {
-                val node: UINode? = findClickedNode(dragCoordinate)
-                if(node == null) {
-                    currentGraphViewState = GraphViewStates.MovingDraggedMouseState
-                    return
-                }
-
-                println(dragCoordinate.x )
-                println(dragCoordinate.y )
-
-                val coordinateOffset = node.coordinate - dragCoordinate
-                currentGraphViewState = GraphViewStates.NodeDraggingState(coordinateOffset, node)
-            }
-
+        if(SwingUtilities.isLeftMouseButton(mouseEvent)) {
+            if (currentGraphViewState == GraphViewState.DefaultState ||
+                    currentGraphViewState is GraphViewState.NodeDraggingState)
+                onLeftMouseButtonDragging(dragCoordinate)
         }
 
         repaint()
     }
 
+    private fun onRightMouseButtonDragging(dragCoordinate: Coordinate){
+        when(currentGraphViewState)
+        {
+            GraphViewState.DefaultState -> {
+                currentGraphViewState = GraphViewState.SheetMovingState(dragCoordinate)
+            }
+
+            is GraphViewState.SheetMovingState -> {
+                val currentSheetMovingState = currentGraphViewState as GraphViewState.SheetMovingState
+                val offsetX = dragCoordinate.x - currentSheetMovingState.draggingStartPoint.x
+                val offsetY = dragCoordinate.y - currentSheetMovingState.draggingStartPoint.y
+
+                sheetDraggingObserver?.onSheetDragged(offsetX, offsetY)
+            }
+        }
+
+    }
+
+    private fun onLeftMouseButtonDragging(dragCoordinate: Coordinate) {
+        when(currentGraphViewState)
+        {
+            is GraphViewState.NodeDraggingState -> {
+                val draggableState = currentGraphViewState as GraphViewState.NodeDraggingState
+
+                draggableState.draggingNode.coordinate = dragCoordinate + draggableState.draggingOffset
+            }
+
+            is GraphViewState.DefaultState -> {
+                val node: UINode? = findClickedNode(dragCoordinate)
+
+                if(node == null) {
+                    currentGraphViewState = GraphViewState.EmptyDraggingState
+                    return
+                }
+
+                val coordinateOffset = node.coordinate - dragCoordinate
+                currentGraphViewState = GraphViewState.NodeDraggingState(coordinateOffset, node)
+            }
+
+        }
+    }
 
     private fun findClickedNode(clickedPoint: Coordinate): UINode? {
         nodes.forEach() {
@@ -131,6 +183,4 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         nodes.add(node)
         repaint()
     }
-
-
 }
