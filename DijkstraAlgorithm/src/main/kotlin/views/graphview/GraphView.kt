@@ -29,15 +29,15 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
             when(newGraphViewState)
             {
                 GraphViewState.DefaultState -> {
-
+                    resetCursorToArrow()
                 }
 
                 is GraphViewState.SheetMovingState -> {
-
+                    setCursorHand()
                 }
 
                 is GraphViewState.NodeDraggingState -> {
-
+                    setCursorHand()
                 }
             }
             field = newGraphViewState
@@ -98,7 +98,12 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     }
 
     override fun mouseMoved(mouseEvent: MouseEvent) {
+        if(findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y)) != null)
+        {
+            setCursorHand()
 
+        }
+        else resetCursorToArrow()
     }
 
     override fun mouseDragged(mouseEvent: MouseEvent) {
@@ -147,7 +152,7 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
             }
 
             is GraphViewState.DefaultState -> {
-                val node: UINode? = findClickedNode(dragCoordinate)
+                val node: UINode? = findNodeUnderMouse(dragCoordinate)
 
                 if(node == null) {
                     currentGraphViewState = GraphViewState.EmptyDraggingState
@@ -161,9 +166,9 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         }
     }
 
-    private fun findClickedNode(clickedPoint: Coordinate): UINode? {
+    private fun findNodeUnderMouse(cursorCoordinate: Coordinate): UINode? {
         nodes.forEach() {
-            if(isPointInsideNodeCircle(clickedPoint, it))
+            if(isPointInsideNodeCircle(cursorCoordinate, it))
             {
                 return it
             }
@@ -183,4 +188,8 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         nodes.add(node)
         repaint()
     }
+
+    private fun setCursorHand() = run { cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) }
+    private fun resetCursorToArrow() = run { cursor = Cursor.getDefaultCursor() }
+
 }
