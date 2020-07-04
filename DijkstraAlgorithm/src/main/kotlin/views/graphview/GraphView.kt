@@ -7,6 +7,7 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.geom.Ellipse2D
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
 import kotlin.math.pow
 
@@ -97,21 +98,24 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
 
     override fun mouseEntered(mouseEvent: MouseEvent) { }
 
-    //Нажатие мышки
+    //Нажатие любой кнопки мышки (и колёсика)
     override fun mouseClicked(mouseEvent: MouseEvent) {
         when(mouseEvent.clickCount) {
 
             //одиночное нажатие
             1 -> {
                 when(mouseEvent.button) {
+                    //Правая кнопка
                     MouseEvent.BUTTON3 -> {
-
+                        val popupMenu = JPopupMenu("Здарова")
+                        popupMenu.show(mouseEvent.component, mouseEvent.x, mouseEvent.y)
                     }
                 }
             }
 
             //Двойной клик
             2 -> {
+                //Левая кнопка
                 if(mouseEvent.button == MouseEvent.BUTTON1)
                     addNode(mouseEvent.x, mouseEvent.y)
             }
