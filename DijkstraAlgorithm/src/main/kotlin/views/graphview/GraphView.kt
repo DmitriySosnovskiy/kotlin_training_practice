@@ -1,5 +1,6 @@
 package views.graphview
 
+import views.UIConstants
 import java.awt.*
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
@@ -17,6 +18,7 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
 
     init {
         background = Color.WHITE
+
         addMouseListener(this)
         addMouseMotionListener(this)
     }
@@ -24,6 +26,7 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     var sheetDraggingObserver: GraphViewObserver? = null
 
     private val nodes = ArrayList<UINode>()
+
     private var currentGraphViewState: GraphViewState = GraphViewState.DefaultState
         set(newGraphViewState) {
             when(newGraphViewState)
@@ -44,29 +47,55 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         }
 
 
-
     override fun paintComponent(graphics: Graphics) {
         super.paintComponent(graphics)
 
         val graphics2D = graphics as Graphics2D
 
-        nodes.forEach {
-            val graphicsCircle = Ellipse2D.Double((it.coordinate.x-it.radius).toDouble(),
-                (it.coordinate.y-it.radius).toDouble(),
-                (2*it.radius).toDouble(),
-                (2*it.radius).toDouble())
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-            graphics2D.fill(graphicsCircle)
+        var nodeIndex = 1
+        nodes.forEach {
+            drawNode(it, nodeIndex, graphics2D)
+            nodeIndex++
         }
+    }
+
+    private fun drawNode(node: UINode, nodeNumber: Int, panelGraphics: Graphics2D) {
+        val strokeCircle = Ellipse2D.Double((node.coordinate.x-node.radius).toDouble(),
+            (node.coordinate.y-node.radius).toDouble(),
+            (2*node.radius).toDouble(),
+            (2*node.radius).toDouble())
+
+        val graphicsCircle = Ellipse2D.Double((node.coordinate.x-UIConstants.circleRadius).toDouble(),
+            (node.coordinate.y-UIConstants.circleRadius).toDouble(),
+            (2*UIConstants.circleRadius).toDouble(),
+            (2*UIConstants.circleRadius).toDouble())
+
+        val nodeNumberString = nodeNumber.toString()
+        panelGraphics.font = UIConstants.textFont
+        val fontMetrics = panelGraphics.fontMetrics
+        val textWidth = fontMetrics.getStringBounds(nodeNumberString, panelGraphics).width.toInt()
+        val textHeight = fontMetrics.getStringBounds(nodeNumberString, panelGraphics).height.toInt()
+
+        panelGraphics.color = UIConstants.nodeStrokeFillColor
+        panelGraphics.fill(strokeCircle)
+
+        panelGraphics.color = UIConstants.nodeFillColor
+        panelGraphics.fill(graphicsCircle)
+
+        panelGraphics.color = UIConstants.textColor
+        panelGraphics.drawString(nodeNumberString,
+            node.coordinate.x - textWidth/2,
+            node.coordinate.y + textHeight/4)
+
     }
 
     override fun mouseReleased(mouseEvent: MouseEvent) {
         currentGraphViewState = GraphViewState.DefaultState
     }
 
-    override fun mouseEntered(mouseEvent: MouseEvent) {
-
-    }
+    override fun mouseEntered(mouseEvent: MouseEvent) { }
 
     //Нажатие мышки
     override fun mouseClicked(mouseEvent: MouseEvent) {
@@ -89,13 +118,9 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         }
     }
 
-    override fun mouseExited(mouseEvent: MouseEvent) {
+    override fun mouseExited(mouseEvent: MouseEvent) { }
 
-    }
-
-    override fun mousePressed(mouseEvent: MouseEvent) {
-
-    }
+    override fun mousePressed(mouseEvent: MouseEvent) { }
 
     override fun mouseMoved(mouseEvent: MouseEvent) {
         if(findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y)) != null)
@@ -177,6 +202,8 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         return null
     }
 
+
+    //Используется уравнение окружности
     private fun isPointInsideNodeCircle(pointCoordinate: Coordinate, node: UINode) : Boolean {
         return (((pointCoordinate.x - node.coordinate.x).toDouble()).pow(2.0) +
                 ((pointCoordinate.y - node.coordinate.y).toDouble()).pow(2.0)

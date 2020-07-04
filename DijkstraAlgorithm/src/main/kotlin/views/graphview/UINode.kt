@@ -5,5 +5,5 @@ import views.UIConstants
 class UINode(
     var coordinate: Coordinate
 ) {
-    val radius = UIConstants.circleRadius
+    val radius = UIConstants.circleRadius + UIConstants.circleStrokeWidth
 }
