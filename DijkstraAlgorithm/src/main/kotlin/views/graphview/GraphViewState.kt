@@ -7,4 +7,11 @@ sealed class GraphViewState {
     class NodeDraggingState(val draggingOffset: Coordinate, val draggingNode: UINode) : GraphViewState()
     class SheetMovingState(val draggingStartPoint: Coordinate) : GraphViewState()
     object EmptyDraggingState : GraphViewState()
+
+    class CreatingEdgeState(sourceNode: UINode): GraphViewState() {
+        val creatingEdge = UIEdge(sourceNode.coordinate, sourceNode.coordinate)
+    }
+
+    class CreatingEdgeAndSheetMovingState(val creatingEdgeState: CreatingEdgeState,
+                                          val sheetMovingState: SheetMovingState) : GraphViewState()
 }
