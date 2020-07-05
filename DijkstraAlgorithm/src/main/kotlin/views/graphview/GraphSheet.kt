@@ -17,7 +17,7 @@ interface GraphViewObserver {
     fun onSheetDragged(offsetX: Int, offsetY: Int)
 }
 
-class GraphView : JPanel(), MouseListener, MouseMotionListener {
+class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
 
     init {
         background = Color.WHITE
@@ -29,6 +29,7 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     var sheetDraggingObserver: GraphViewObserver? = null
 
     private val nodes = ArrayList<UINode>()
+    private val edges = ArrayList<UIEdge>()
 
     private var currentGraphViewState: GraphViewState = GraphViewState.DefaultState
         set(newGraphViewState) {
@@ -65,8 +66,15 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
                         currentGraphViewState as GraphViewState.CreatingEdgeState
                     else (currentGraphViewState as GraphViewState.CreatingEdgeAndSheetMovingState).creatingEdgeState
 
-                drawEdge(currentCreatingEdgeState.creatingEdge, graphics2D)
+                drawBuildingEdge(currentCreatingEdgeState.creatingEdge, graphics2D)
             }
+        }
+
+
+        //Сначала рисуем рёбра, чтобы вершины были сверху них.
+
+        edges.forEach {
+            drawEdge(it, graphics2D)
         }
 
         var nodeIndex = 1
@@ -111,21 +119,37 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     private fun drawEdge(edge: UIEdge, panelGraphics: Graphics2D)
     {
         panelGraphics.stroke = BasicStroke((edge.width/2).toFloat())
-        panelGraphics.drawLine(edge.sourceCoordinate.x, edge.sourceCoordinate.y,
-            edge.endCoordinate.x, edge.endCoordinate.y)
+        panelGraphics.drawLine(edge.soureNode.coordinate.x,
+            edge.soureNode.coordinate.y,
+            edge.endNode.coordinate.x,
+            edge.endNode.coordinate.y)
+    }
+
+    private fun drawBuildingEdge(buildingEdge: UIBuildingEdge, panelGraphics: Graphics2D)
+    {
+        panelGraphics.stroke = BasicStroke((buildingEdge.width/2).toFloat())
+        panelGraphics.drawLine(buildingEdge.startCoordinate.x,
+            buildingEdge.startCoordinate.y,
+            buildingEdge.endCoordinate.x,
+            buildingEdge.endCoordinate.y)
     }
 
     override fun mouseReleased(mouseEvent: MouseEvent) {
         when(currentGraphViewState)
         {
-            !is GraphViewState.CreatingEdgeAndSheetMovingState -> {
-                currentGraphViewState = GraphViewState.DefaultState
+            is GraphViewState.CreatingEdgeState -> {
+                //ничего не делаем, т.к. mouseClick обрабатывается ПОСЛЕ mouseReleased
             }
 
             is GraphViewState.CreatingEdgeAndSheetMovingState -> {
                 currentGraphViewState = (currentGraphViewState as GraphViewState.CreatingEdgeAndSheetMovingState)
                     .creatingEdgeState
             }
+
+            else -> {
+                currentGraphViewState = GraphViewState.DefaultState
+            }
+
         }
     }
 
@@ -140,11 +164,40 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
                 when(mouseEvent.button) {
                     //Правая кнопка
                     MouseEvent.BUTTON3 -> {
-                        val node: UINode? = findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
-                        node ?: return
+                        when(currentGraphViewState)
+                        {
+                            is GraphViewState.DefaultState -> {
+                                val node: UINode? = findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
+                                node ?: return
 
-                        createAndShowPopupMenu(mouseEvent, node)
+                                createAndShowPopupMenu(mouseEvent, node)
+                            }
+
+                        }
                     }
+
+                    //Левая кнопка
+                    MouseEvent.BUTTON1 -> {
+
+                        when(currentGraphViewState)
+                        {
+                            is GraphViewState.CreatingEdgeState -> {
+                                val node: UINode? = findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
+                                if(node == null) {
+                                    currentGraphViewState = GraphViewState.DefaultState
+                                    repaint()
+                                    return
+                                }
+
+                                val currentCreatingEdgeState = currentGraphViewState as GraphViewState.CreatingEdgeState
+
+                                addEdge(currentCreatingEdgeState.sourceNode, node)
+
+                                currentGraphViewState = GraphViewState.DefaultState
+                            }
+                        }
+                    }
+
                 }
             }
 
@@ -152,7 +205,8 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
             2 -> {
                 //Левая кнопка
                 if(mouseEvent.button == MouseEvent.BUTTON1)
-                    addNode(mouseEvent.x, mouseEvent.y)
+                    if(currentGraphViewState is GraphViewState.DefaultState)
+                        addNode(mouseEvent.x, mouseEvent.y)
             }
         }
     }
@@ -195,8 +249,16 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
     private fun onRightMouseButtonDragging(dragCoordinate: Coordinate){
         when(currentGraphViewState)
         {
-            GraphViewState.DefaultState -> {
-                currentGraphViewState = GraphViewState.SheetMovingState(dragCoordinate)
+            GraphViewState.DefaultState, is GraphViewState.CreatingEdgeState -> {
+
+                currentGraphViewState =
+                    if(currentGraphViewState is GraphViewState.DefaultState)
+                        GraphViewState.SheetMovingState(dragCoordinate)
+                    else
+                        GraphViewState.CreatingEdgeAndSheetMovingState(
+                            currentGraphViewState as GraphViewState.CreatingEdgeState,
+                            GraphViewState.SheetMovingState(dragCoordinate))
+
             }
 
             is GraphViewState.SheetMovingState, is GraphViewState.CreatingEdgeAndSheetMovingState -> {
@@ -211,12 +273,6 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
 
                 sheetDraggingObserver?.onSheetDragged(offsetX, offsetY)
                 updateCreatingEdge(dragCoordinate)
-            }
-
-            is GraphViewState.CreatingEdgeState -> {
-                currentGraphViewState = GraphViewState.CreatingEdgeAndSheetMovingState(
-                    currentGraphViewState as GraphViewState.CreatingEdgeState,
-                    GraphViewState.SheetMovingState(dragCoordinate))
             }
         }
 
@@ -276,8 +332,9 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
         repaint()
     }
 
-    private fun addEdge() {
-
+    private fun addEdge(sourceNode: UINode, endNode: UINode) {
+        edges.add(UIEdge(sourceNode, endNode))
+        repaint()
     }
 
     private fun updateCreatingEdge(newEndCoordinate: Coordinate) {
@@ -292,7 +349,6 @@ class GraphView : JPanel(), MouseListener, MouseMotionListener {
                 repaint()
             }
         }
-
     }
 
     private fun setCursorHand() = run { cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) }

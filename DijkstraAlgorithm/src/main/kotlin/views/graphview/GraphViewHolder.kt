@@ -5,12 +5,12 @@ import java.awt.Dimension
 import javax.swing.JScrollPane
 import javax.swing.ScrollPaneConstants
 
-class GraphViewHolder : JScrollPane(GraphView()), GraphViewObserver {
+class GraphViewHolder : JScrollPane(GraphSheet()), GraphViewObserver {
 
     init {
 
         //достаём переданный graphview
-        (viewport.view as GraphView).sheetDraggingObserver = this
+        (viewport.view as GraphSheet).sheetDraggingObserver = this
         viewport.view.preferredSize = Dimension(UIConstants.graphScreenSheetWidth, UIConstants.graphScreenSheetHeight)
 
         horizontalScrollBarPolicy = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS
