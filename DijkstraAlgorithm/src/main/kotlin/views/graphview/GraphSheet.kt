@@ -6,10 +6,14 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.geom.Ellipse2D
+import java.lang.NumberFormatException
 import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
+import javax.swing.JOptionPane
+
+
 
 interface GraphViewObserver {
     fun onSheetDragged(offsetX: Int, offsetY: Int)
@@ -96,7 +100,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
             (2*UIConstants.circleRadius).toDouble())
 
         val nodeNumberString = nodeNumber.toString()
-        panelGraphics.font = UIConstants.textFont
+        panelGraphics.font = UIConstants.nodeTextFont
         val fontMetrics = panelGraphics.fontMetrics
         val textWidth = fontMetrics.getStringBounds(nodeNumberString, panelGraphics).width.toInt()
         val textHeight = fontMetrics.getStringBounds(nodeNumberString, panelGraphics).height.toInt()
@@ -118,8 +122,8 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
     {
         panelGraphics.stroke = BasicStroke((edge.width/2).toFloat())
         panelGraphics.color = UIConstants.edgeColor
-        panelGraphics.drawLine(edge.soureNode.coordinate.x,
-            edge.soureNode.coordinate.y,
+        panelGraphics.drawLine(edge.sourceNode.coordinate.x,
+            edge.sourceNode.coordinate.y,
             edge.endNode.coordinate.x,
             edge.endNode.coordinate.y)
 
@@ -134,6 +138,11 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
             arrow.point3.y,
             arrow.point1.x,
             arrow.point1.y)
+
+        val textCoordinate = mathProvider.calculateEdgeWeightTextPosition(edge)
+        panelGraphics.font = UIConstants.edgeWeightTextFont
+        panelGraphics.drawString(edge.weight,
+            textCoordinate.x, textCoordinate.y)
     }
 
     private fun drawBuildingEdge(buildingEdge: UIBuildingEdge, panelGraphics: Graphics2D)
@@ -203,7 +212,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
 
                                 val currentCreatingEdgeState = currentGraphViewState as GraphViewState.CreatingEdgeState
 
-                                addEdge(currentCreatingEdgeState.sourceNode, node)
+                                addEdge(currentCreatingEdgeState.sourceNode, node, currentCreatingEdgeState.edgeWeight.toString())
 
                                 currentGraphViewState = GraphViewState.DefaultState
                             }
@@ -335,8 +344,8 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         repaint()
     }
 
-    private fun addEdge(sourceNode: UINode, endNode: UINode) {
-        edges.add(UIEdge(sourceNode, endNode))
+    private fun addEdge(sourceNode: UINode, endNode: UINode, edgeWeight: String) {
+        edges.add(UIEdge(sourceNode, endNode, edgeWeight))
         repaint()
     }
 
@@ -362,7 +371,20 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
 
         val addEdgeItem = JMenuItem("Добавить ребро")
         addEdgeItem.addActionListener {
-            currentGraphViewState = GraphViewState.CreatingEdgeState(affectedNode)
+            val edgeWeightString: String? = JOptionPane.showInputDialog(null, "Введите вес ребра",
+                "Ввод веса ребра", JOptionPane.QUESTION_MESSAGE)
+
+            if(edgeWeightString != null) {
+                try {
+                    val edgeWeight: Int = edgeWeightString.toInt()
+                    currentGraphViewState = GraphViewState.CreatingEdgeState(affectedNode, edgeWeight)
+                } catch (exception: NumberFormatException) {
+                    JOptionPane.showMessageDialog(
+                        null, "Вы ввели некорректное значение веса ребра",
+                        "Ошибка ввода", JOptionPane.ERROR_MESSAGE
+                    )
+                }
+            }
         }
         popupMenu.add(addEdgeItem)
 

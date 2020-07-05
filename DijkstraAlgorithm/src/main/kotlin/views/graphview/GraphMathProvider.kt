@@ -1,6 +1,5 @@
 package views.graphview
 
-import javafx.beans.property.DoublePropertyBase
 import views.UIConstants
 import kotlin.math.*
 
@@ -10,8 +9,6 @@ class GraphMathProvider {
         val x: Double = 0.0,
         val y: Double = 0.0
     ) {
-
-        constructor(coordinate: Coordinate) : this(coordinate.x.toDouble(), coordinate.y.toDouble() )
 
         operator fun minus(anotherCoordinate: DoubleCoordinate) : DoubleCoordinate {
             return DoubleCoordinate(x - anotherCoordinate.x, y - anotherCoordinate.y)
@@ -30,6 +27,30 @@ class GraphMathProvider {
         }
     }
 
+    fun calculateEdgeWeightTextPosition(edge: UIEdge): Coordinate {
+        val x1 = edge.sourceNode.coordinate.x
+        val y1 = edge.sourceNode.coordinate.y
+
+        val x2 = edge.endNode.coordinate.x
+        val y2 = edge.endNode.coordinate.y
+
+        val centerPoint = DoubleCoordinate((x1+x2)/2.0, (y1+y2)/2.0)
+
+        val lineVector = DoubleCoordinate(x1 - centerPoint.x, y1 - centerPoint.y)
+
+        val normalToLineVector =
+            if (lineVector.x == 0.0)
+                DoubleCoordinate(-1.0, 0.0)
+            else
+                DoubleCoordinate(-1 * abs(lineVector.y/lineVector.x), 1.0)
+
+        val unitNormalToLineVector = normaliseVector(normalToLineVector)
+
+        val textOffsetVector = unitNormalToLineVector * UIConstants.edgeWeightTextOffsetHeight
+
+        return (centerPoint + textOffsetVector).toInt()
+    }
+
     //Используется уравнение окружности
     fun isPointInsideNodeCircle(pointCoordinate: Coordinate, node: UINode) : Boolean {
         return (((pointCoordinate.x - node.coordinate.x).toDouble()).pow(2.0) +
@@ -38,8 +59,8 @@ class GraphMathProvider {
     }
 
     fun calculateEdgeArrow(edge: UIEdge) : UIEdgeArrow {
-        val x1 = edge.soureNode.coordinate.x
-        val y1 = edge.soureNode.coordinate.y
+        val x1 = edge.sourceNode.coordinate.x
+        val y1 = edge.sourceNode.coordinate.y
 
         val x2 = edge.endNode.coordinate.x
         val y2 = edge.endNode.coordinate.y
@@ -59,7 +80,7 @@ class GraphMathProvider {
 
         var point1 = DoubleCoordinate()
 
-        when(determineRelativeQuarter(edge.endNode.coordinate, edge.soureNode.coordinate))
+        when(determineRelativeQuarter(edge.endNode.coordinate, edge.sourceNode.coordinate))
         {
             1 -> {
                 point1 = DoubleCoordinate(x2 + xOffset, y2 + yOffset)
@@ -84,7 +105,7 @@ class GraphMathProvider {
         val widthOffsetVector = mainLineUnitVector * UIConstants.arrowWidth
 
         val widthPoint = point1 + widthOffsetVector
-        
+
         //перпендикулярный вектор
         val heightVector = if(mainLineUnitVector.x == 0.0)
             DoubleCoordinate(1.0, 0.0)
@@ -103,13 +124,14 @@ class GraphMathProvider {
         return UIEdgeArrow(point1.toInt(), point2.toInt(), point3.toInt())
     }
 
+    //Возвращает единичный вектор по заданному
     private fun normaliseVector(vector: DoubleCoordinate) : DoubleCoordinate {
         val vectorLen = sqrt(vector.x.pow(2) + vector.y.pow(2))
 
         return DoubleCoordinate(vector.x / vectorLen, vector.y / vectorLen)
     }
 
-
+    //Определяет четверть в которой находится relativePoint по отношению к centerPoint
     private fun determineRelativeQuarter(centerPoint: Coordinate, relativePoint: Coordinate) : Int
     {
         val centerX = centerPoint.x
