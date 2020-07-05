@@ -16,7 +16,7 @@ class MainWindow : JPanel() {
         add(graphViewHolder)
 
         val toolbarView = ToolbarView()
-        toolbarView.preferredSize = Dimension(200, 200)
+        toolbarView.preferredSize = Dimension(300, 200)
         add(toolbarView, BorderLayout.EAST)
     }
 }
