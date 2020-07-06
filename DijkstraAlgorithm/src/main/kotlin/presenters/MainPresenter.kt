@@ -9,8 +9,6 @@ import views.graphview.UINode
 
 interface GraphView {
     fun update()
-interface ToolBarView{
-    fun HandleToolBar()
 }
 
 class DijkstraAlgorithmController(){
@@ -35,8 +33,6 @@ class DijkstraAlgorithmController(){
         currentStep--
         return snapshotKeeper.getSnapshot(currentStep)
     }
-
-
 }
 
 
@@ -54,7 +50,7 @@ class MainPresenter(
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
 
-    private val dijkstraAlgorithmController = presenters.DijkstraAlgorithmController()
+    private val dijkstraAlgorithmController = DijkstraAlgorithmController()
 
     fun addNode(new:UINode){
         nodes.add(new)
