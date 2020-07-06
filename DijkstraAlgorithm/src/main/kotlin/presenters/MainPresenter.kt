@@ -33,6 +33,10 @@ class DijkstraAlgorithmController(){
         currentStep--
         return snapshotKeeper.getSnapshot(currentStep)
     }
+
+    fun getLast():Snapshot?{
+        return snapshotKeeper.getSnapshot(snapshotKeeper.getSize())
+    }
 }
 
 
@@ -58,6 +62,12 @@ class MainPresenter(
     }
 
     fun addEdge(new:UIEdge){
+        if (new.weight.toInt()<=0)
+            return
+        for (e in edges){
+            if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
+                return
+        }
         edges.add(new)
         graphView.update()
     }
@@ -113,20 +123,21 @@ class MainPresenter(
     }
 
     fun nextStep(){
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
-
-        //обновляем состояния узлов
-        updateAllNodes(snapMap)
-
-        //перерисовываем
-        graphView.update()
-
         for(n in nodes){
             n.reset()
         }
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
+        //обновляем состояния узлов
+        updateAllNodes(snapMap)
+        //перерисовываем
+        graphView.update()
     }
 
     fun previousStep(){
+        for(n in nodes){
+            n.reset()
+        }
+
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()!!)
         //обновляем состояния узлов
         updateAllNodes(snapMap)
@@ -134,8 +145,11 @@ class MainPresenter(
         //перерисовываем
         graphView.update()
 
-        for(n in nodes){
-            n.reset()
-        }
     }
+    fun finishAlgorithm(){
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getLast()!!)
+        updateAllNodes(snapMap)
+        graphView.update()
+    }
+
 }
