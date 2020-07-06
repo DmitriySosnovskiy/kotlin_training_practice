@@ -51,9 +51,7 @@ class MainPresenter(
     override fun handleEvent(event: Event) {
         when (event) {
             is Event.StartAlgorithm -> {
-
-                //алгоритм
-
+                startAlgorithm()
             }
         }
     }
@@ -97,7 +95,7 @@ class MainPresenter(
         graphView.update()
     }
 
-    fun startAlgorithm(startNode:UINode, endNode:UINode){ //где хранить конечный и начальный узел
+    fun startAlgorithm(startNode:Int=1, endNode:Int=3){ //где хранить конечный и начальный узел
 
         val gr:ArrayList<Edge> = ArrayList<Edge>()
         for (e in edges){
@@ -105,8 +103,8 @@ class MainPresenter(
         }
 
         val graph = Graph(gr)
-        graph.dijkstra(nodes.indexOf(startNode)) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(nodes.indexOf(startNode),nodes.indexOf(endNode),graph.getSnapshotHistory())
+        graph.dijkstra(startNode) //прогнали алгоритм
+        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())
 
     }
 
@@ -133,7 +131,7 @@ class MainPresenter(
         for(n in nodes){
             n.reset()
         }
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()?:return)
         //обновляем состояния узлов
         updateAllNodes(snapMap)
         //перерисовываем
@@ -144,12 +142,8 @@ class MainPresenter(
         for(n in nodes){
             n.reset()
         }
-
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()!!)
-        //обновляем состояния узлов
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()?:return)
         updateAllNodes(snapMap)
-
-        //перерисовываем
         graphView.update()
 
     }
