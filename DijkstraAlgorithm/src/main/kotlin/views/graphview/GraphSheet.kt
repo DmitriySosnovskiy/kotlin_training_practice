@@ -355,7 +355,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     }
 
     private fun addEdge(sourceNode: UINode, endNode: UINode, edgeWeight: String) {
-        edges.add(UIEdge(sourceNode, endNode, edgeWeight))
+        presenter.addEdge(UIEdge(sourceNode, endNode, edgeWeight))
         repaint()
     }
 

@@ -6,5 +6,7 @@ interface ToolbarView {
 }
 
 class ToolbarPresenter(toolbarView: ToolbarView) {
+    fun handleEvent(event: Event) {
 
+    }
 }
