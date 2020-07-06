@@ -17,6 +17,7 @@ object UIConstants {
     const val edgeWeightTextOffsetHeight = 10
 
     val nodeFillColor = Color(106, 233, 114)
+    val nodeActiveFillColor = Color(255, 0, 0)
     val nodeStrokeFillColor = Color(112, 112, 112)
     val textColor = Color(112, 112, 112)
     val edgeColor = Color(112, 112, 112)
