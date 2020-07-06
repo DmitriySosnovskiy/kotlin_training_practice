@@ -93,17 +93,25 @@ class MainPresenter(
 
     }
 
-    fun nextStep(){
-        val curStep = dijkstraAlgorithmController.getNextStep()
-        for (n in nodes){
+    private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
 
+        val list = snap.getAllInfo().substring(1,snap.getAllInfo().length-1).split("), (")
+        val double = HashMap<Int,List<String>>(list.size)
+        for (e in list){
+            double[list.indexOf(e)] = e.split(",")
         }
+        return double
+    }
+
+    fun nextStep(){
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
+        // snapMap[0][0] - текущий узел
+        // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
+
     }
 
     fun previousStep(){
-        val curStep = dijkstraAlgorithmController.getPreviousStep()
-        for (n in nodes){
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()!!)
 
-        }
     }
 }

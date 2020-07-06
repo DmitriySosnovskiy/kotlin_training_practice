@@ -12,7 +12,7 @@ class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int): Me
 
     init{
         for(v in graph) {
-            vertexAsString.append(v.toString()+", ")
+            vertexAsString.append(v.value.toString()+", ")
         }
         vertexAsString.delete(vertexAsString.length - 2, vertexAsString.length).append("")
     }
@@ -25,7 +25,7 @@ class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int): Me
         return currentVertex
     }
     override fun getAllInfo(): String{
-        return ("cur vertex = $currentVertex,\n${vertexAsString.toString()}")
+        return ("($currentVertex), ${vertexAsString.toString()}")
     }
 
 }
