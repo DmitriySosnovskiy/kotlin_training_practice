@@ -12,17 +12,10 @@ class ToolbarView : JPanel(){
         border = EmptyBorder(0, 10, 0,0)
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
-        val btn1 = JButton("Добавить вершину")
-        add(btn1)
-        add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
-
         val btn2 = JButton("Запустить алгоритм")
         add(btn2)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn3 = JButton("Удалить объект")
-        add(btn3)
-        add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
         val btn4 = JButton("Сохранить граф")
         add(btn4)
@@ -32,7 +25,7 @@ class ToolbarView : JPanel(){
         add(btn5)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn6 = JButton("Соединить вершины")
+        val btn6 = JButton("Очистить сцену")
         add(btn6)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
