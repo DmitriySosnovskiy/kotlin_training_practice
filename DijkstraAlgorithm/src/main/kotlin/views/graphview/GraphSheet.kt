@@ -1,5 +1,7 @@
 package views.graphview
 
+import presenters.GraphView
+import presenters.MainPresenter
 import views.UIConstants
 import java.awt.*
 import java.awt.event.MouseEvent
@@ -19,7 +21,7 @@ interface GraphViewObserver {
     fun onSheetDragged(offsetX: Int, offsetY: Int)
 }
 
-class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
+class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     init {
         background = Color.WHITE
@@ -28,10 +30,14 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         addMouseMotionListener(this)
     }
 
+    private val presenter = MainPresenter(this)
+
+    override fun update() = repaint()
+
     var sheetDraggingObserver: GraphViewObserver? = null
 
-    private val nodes = ArrayList<UINode>()
-    private val edges = ArrayList<UIEdge>()
+    private val nodes = presenter.nodes
+    private val edges = presenter.edges
 
     private val mathProvider = GraphMathProvider()
 
@@ -233,7 +239,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
                 //Левая кнопка
                 if(mouseEvent.button == MouseEvent.BUTTON1)
                     if(currentGraphViewState is GraphViewState.DefaultState)
-                        addNode(mouseEvent.x, mouseEvent.y)
+                        presenter.addNode(UINode(Coordinate(mouseEvent.x, mouseEvent.y)))
             }
         }
     }
@@ -348,24 +354,8 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         return null
     }
 
-    private fun addNode(x: Int, y: Int) {
-        val node = UINode(Coordinate(x, y))
-        nodes.add(node)
-        repaint()
-    }
-
-    private fun removeNode(removableNode: UINode){
-        nodes.remove(removableNode)
-        repaint()
-    }
-
     private fun addEdge(sourceNode: UINode, endNode: UINode, edgeWeight: String) {
         edges.add(UIEdge(sourceNode, endNode, edgeWeight))
-        repaint()
-    }
-
-    private fun removeEdge(removableEdge: UIEdge){
-        edges.remove(removableEdge)
         repaint()
     }
 
@@ -409,7 +399,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         popupMenu.add(addEdgeItem)
 
         val removeNodeItem = JMenuItem("Удалить вершину")
-        removeNodeItem.addActionListener { removeNode(affectedNode) }
+        removeNodeItem.addActionListener { presenter.deleteNode(affectedNode) }
         popupMenu.add(removeNodeItem)
 
         popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
@@ -420,7 +410,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         val popupMenu = JPopupMenu()
 
         val removeEdgeItem = JMenuItem("Удалить ребро")
-        removeEdgeItem.addActionListener {removeEdge(affectedEdge)}
+        removeEdgeItem.addActionListener { presenter.deleteEdge(affectedEdge)}
         popupMenu.add(removeEdgeItem)
         popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
     }

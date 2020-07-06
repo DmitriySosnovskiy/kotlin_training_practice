@@ -5,38 +5,53 @@ import models.SnapshotKeeper
 import views.graphview.UIEdge
 import views.graphview.UINode
 
-interface ViewObserver{
+interface GraphView {
     fun update()
 }
 
-class MainPresenter(
-    val graphView: GraphView
-):ViewObserver {
 
-    private val nodes = ArrayList<UINode>()
-    private val edges = ArrayList<UIEdge>()
+class MainPresenter(
+    private val graphView: GraphView
+) : EventSubscriber {
+
+    init {
+        BroadcastPresenter.registerSubscriber(this)
+    }
+
+    override fun handleEvent(event: Event) {
+    }
+
+    val nodes = ArrayList<UINode>()
+    val edges = ArrayList<UIEdge>()
 
     private var snapshotKeeper : SnapshotKeeper? = SnapshotKeeper()
 
     fun addNode(new:UINode){
-        if (new !in nodes)
-            nodes.add(new)
+        nodes.add(new)
+        graphView.update()
     }
+
     fun addEdge(new:UIEdge){
-        if (new !in edges)
-            edges.add(new)
+        edges.add(new)
+        graphView.update()
     }
+
     fun deleteEdge(deleted:UIEdge){
         edges.remove(deleted)
+        graphView.update()
     }
+
     fun deleteNode(deleted:UINode){
-        if (deleted in nodes){
-            for (e in edges){
-                if (e.sourceNode ==deleted || e.endNode == deleted)
-                    edges.remove(e)
-            }
-            nodes.remove(deleted)
+
+        val removableEdges = ArrayList<UIEdge>()
+        for (e in edges){
+            if (e.sourceNode == deleted || e.endNode == deleted)
+                removableEdges.add(e)
         }
+
+        edges.removeAll(removableEdges)
+        nodes.remove(deleted)
+        graphView.update()
     }
 
     fun startAlgorithm(){
@@ -44,11 +59,6 @@ class MainPresenter(
         for (e in edges){
             //GRAPH.add(Edge(e.sourceNode,e.endNode,e.weight.toInt()))
         }
-    }
-
-    // принимает какой-то флаг (мб enum)
-    override fun update(){
-        TODO("")
     }
 }
 

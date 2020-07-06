@@ -1,12 +1,16 @@
 package views.toolbarview
 
+import presenters.ToolbarPresenter
+import presenters.ToolbarView
 import views.UIConstants
 import java.awt.Color
 import java.awt.Dimension
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
-class ToolbarView : JPanel(){
+class ToolbarView : JPanel(), ToolbarView {
+
+    private val toolbarPresenter = ToolbarPresenter(this)
 
     init {
         border = EmptyBorder(0, 10, 0,0)
@@ -49,4 +53,10 @@ class ToolbarView : JPanel(){
         add(logTextView)
     }
 
+    override fun lockSaveAndDownload() {
+
+    }
+
+    override fun lockStart() {
+    }
 }
