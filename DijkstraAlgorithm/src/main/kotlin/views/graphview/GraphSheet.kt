@@ -189,9 +189,15 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
                         {
                             is GraphViewState.DefaultState -> {
                                 val node: UINode? = findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
-                                node ?: return
+                                if(node != null)
+                                    createAndShowPopupMenuOnNode(mouseEvent, node)
 
-                                createAndShowPopupMenu(mouseEvent, node)
+                                else {
+                                    val edge: UIEdge? = findEdgeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
+                                    edge ?: return
+
+                                    createAndShowPopupMenuOnEdge(mouseEvent, edge)
+                                }
                             }
 
                         }
@@ -333,6 +339,15 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
         return null
     }
 
+    private fun findEdgeUnderMouse(cursorCoordinate: Coordinate) : UIEdge? {
+        edges.forEach() {
+            if(mathProvider.isPointInsideEdgeRectangle(it, cursorCoordinate))
+                return it
+        }
+
+        return null
+    }
+
     private fun addNode(x: Int, y: Int) {
         val node = UINode(Coordinate(x, y))
         nodes.add(node)
@@ -346,6 +361,11 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
 
     private fun addEdge(sourceNode: UINode, endNode: UINode, edgeWeight: String) {
         edges.add(UIEdge(sourceNode, endNode, edgeWeight))
+        repaint()
+    }
+
+    private fun removeEdge(removableEdge: UIEdge){
+        edges.remove(removableEdge)
         repaint()
     }
 
@@ -366,7 +386,7 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
     private fun setCursorHand() = run { cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) }
     private fun resetCursorToArrow() = run { cursor = Cursor.getDefaultCursor() }
 
-    private fun createAndShowPopupMenu(sourceMouseEvent: MouseEvent, affectedNode: UINode) {
+    private fun createAndShowPopupMenuOnNode(sourceMouseEvent: MouseEvent, affectedNode: UINode) {
         val popupMenu = JPopupMenu()
 
         val addEdgeItem = JMenuItem("Добавить ребро")
@@ -394,4 +414,15 @@ class GraphSheet : JPanel(), MouseListener, MouseMotionListener {
 
         popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
     }
+
+    private fun createAndShowPopupMenuOnEdge(sourceMouseEvent: MouseEvent, affectedEdge: UIEdge)
+    {
+        val popupMenu = JPopupMenu()
+
+        val removeEdgeItem = JMenuItem("Удалить ребро")
+        removeEdgeItem.addActionListener {removeEdge(affectedEdge)}
+        popupMenu.add(removeEdgeItem)
+        popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
+    }
+
 }
