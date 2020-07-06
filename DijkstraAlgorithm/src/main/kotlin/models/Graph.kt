@@ -53,7 +53,6 @@ class Vertex(val name: Int) : Comparable<Vertex> {
 
 // Класс графа (список ребер)
 class Graph(private val edges: List<Edge>){
-
     // Хэш-таблица вершин (имя, объект), построенная из списка ребер
     private val graph = HashMap<Int, Vertex>(edges.size)
 
