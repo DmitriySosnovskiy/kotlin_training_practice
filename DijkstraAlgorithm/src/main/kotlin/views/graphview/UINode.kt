@@ -9,4 +9,10 @@ class UINode(
     var isActive: Boolean = false
     var bestWay: String = ""
     var nodeFrom: String = ""
+
+    fun reset() {
+        isActive = false
+        bestWay = ""
+        nodeFrom = ""
+    }
 }
