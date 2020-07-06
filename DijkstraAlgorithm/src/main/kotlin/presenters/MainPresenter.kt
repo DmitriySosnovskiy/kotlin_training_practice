@@ -45,6 +45,13 @@ class MainPresenter(
     }
 
     override fun handleEvent(event: Event) {
+        when (event) {
+            is Event.StartAlgorithm -> {
+
+                //алгоритм
+
+            }
+        }
     }
 
     val nodes = ArrayList<UINode>()
