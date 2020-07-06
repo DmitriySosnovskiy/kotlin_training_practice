@@ -1,12 +1,42 @@
 package presenters
 
 import models.Edge
+import models.Graph
 import models.SnapshotKeeper
+import models.Snapshot
 import views.graphview.UIEdge
 import views.graphview.UINode
 
 interface GraphView {
     fun update()
+interface ToolBarView{
+    fun HandleToolBar()
+}
+
+class DijkstraAlgorithmController(){
+    var snapshotKeeper : SnapshotKeeper = SnapshotKeeper()
+    var startNode : Int = -1
+    var endNode : Int = -1
+    var currentStep : Int = 0
+
+    fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper){
+        this.startNode = startNode
+        this.endNode = endNode
+        this.snapshotKeeper = snapshots
+    }
+
+    fun getNextStep():Snapshot?{
+        currentStep++
+        return snapshotKeeper.getSnapshot(currentStep)
+    }
+
+    fun getPreviousStep():Snapshot?{
+        if (currentStep<=0) return null
+        currentStep--
+        return snapshotKeeper.getSnapshot(currentStep)
+    }
+
+
 }
 
 
@@ -24,7 +54,7 @@ class MainPresenter(
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
 
-    private var snapshotKeeper : SnapshotKeeper? = SnapshotKeeper()
+    private val dijkstraAlgorithmController = presenters.DijkstraAlgorithmController()
 
     fun addNode(new:UINode){
         nodes.add(new)
@@ -54,19 +84,30 @@ class MainPresenter(
         graphView.update()
     }
 
-    fun startAlgorithm(){
-        val GRAPH:ArrayList<Edge> = ArrayList<Edge>()
+    fun startAlgorithm(startNode:UINode, endNode:UINode){ //где хранить конечный и начальный узел
+
+        val gr:ArrayList<Edge> = ArrayList<Edge>()
         for (e in edges){
-            //GRAPH.add(Edge(e.sourceNode,e.endNode,e.weight.toInt()))
+            gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
+        }
+
+        val graph = Graph(gr)
+        graph.dijkstra(nodes.indexOf(startNode)) //прогнали алгоритм
+        dijkstraAlgorithmController.initStart(nodes.indexOf(startNode),nodes.indexOf(endNode),graph.getSnapshotHistory())
+
+    }
+
+    fun nextStep(){
+        val curStep = dijkstraAlgorithmController.getNextStep()
+        for (n in nodes){
+
         }
     }
-}
 
-enum class Commands() {
-    ADD_NODE,
-    ADD_EDGE,
-    DELETE_NODE,
-    DELETE_EDGE,
-    START_ALGORYTHM
+    fun previousStep(){
+        val curStep = dijkstraAlgorithmController.getPreviousStep()
+        for (n in nodes){
 
+        }
+    }
 }

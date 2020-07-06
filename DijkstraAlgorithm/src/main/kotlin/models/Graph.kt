@@ -44,9 +44,12 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     }
 
     override fun toString() :String{
+        var pr :String = (previous?.name).toString()
+        if (previous == null)
+            pr = "n"
         if (dist == Int.MAX_VALUE)
-            return "(-, ${previous?.name})"
-        return "($dist, ${previous?.name})"
+            return "(-, $pr)"
+        return "($dist, $pr)"
     }
 
 }
@@ -56,7 +59,7 @@ class Graph(private val edges: List<Edge>){
     // Хэш-таблица вершин (имя, объект), построенная из списка ребер
     private val graph = HashMap<Int, Vertex>(edges.size)
 
-    private val snapshotKeeper: SnapshotKeeper? = SnapshotKeeper()
+    private val snapshotKeeper: SnapshotKeeper = SnapshotKeeper()
 
     // Инициализация всех вершин и соседей
     init {
@@ -183,10 +186,10 @@ class Graph(private val edges: List<Edge>){
      */
 
     private fun makeSnapshot(vertex:Int){
-        snapshotKeeper!!.putSnapshot(Snapshot(graph,vertex))
+        snapshotKeeper.putSnapshot(Snapshot(graph,vertex))
     }
 
-    fun getSnapshotHistory() :SnapshotKeeper?{
+    fun getSnapshotHistory() :SnapshotKeeper{
         return snapshotKeeper
     }
 
