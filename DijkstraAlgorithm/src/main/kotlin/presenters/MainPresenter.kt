@@ -20,7 +20,7 @@ class DijkstraAlgorithmController(){
         this.startNode = startNode
         this.endNode = endNode
         this.snapshotKeeper = snapshots
-        currentStep = 0
+        currentStep = -1
     }
 
     fun getNextStep():Snapshot?{
@@ -52,6 +52,9 @@ class MainPresenter(
         when (event) {
             is Event.StartAlgorithm -> {
                 startAlgorithm()
+            }
+            is Event.NextStep->{
+                nextStep()
             }
         }
     }
