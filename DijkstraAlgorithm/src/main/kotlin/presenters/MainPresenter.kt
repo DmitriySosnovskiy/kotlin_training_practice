@@ -16,11 +16,11 @@ class DijkstraAlgorithmController(){
     var startNode : Int = -1
     var endNode : Int = -1
     var currentStep : Int = 0
-
     fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper){
         this.startNode = startNode
         this.endNode = endNode
         this.snapshotKeeper = snapshots
+        currentStep = 0
     }
 
     fun getNextStep():Snapshot?{
@@ -94,7 +94,6 @@ class MainPresenter(
     }
 
     private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
-
         val list = snap.getAllInfo().substring(1,snap.getAllInfo().length-1).split("), (")
         val double = HashMap<Int,List<String>>(list.size)
         for (e in list){
@@ -103,15 +102,40 @@ class MainPresenter(
         return double
     }
 
-    fun nextStep(){
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
+    private fun updateAllNodes(snapMap:HashMap<Int,List<String>>){
         // snapMap[0][0] - текущий узел
         // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
+        nodes[snapMap[0]!![0].toInt()].isActive = true
+        for (i in 1..snapMap.size-1){
+            nodes[snapMap[i]!![0].toInt()].bestWay = snapMap[i]!![1]
+            nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
+        }
+    }
 
+    fun nextStep(){
+        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()!!)
+
+        //обновляем состояния узлов
+        updateAllNodes(snapMap)
+
+        //перерисовываем
+        graphView.update()
+
+        for(n in nodes){
+            n.reset()
+        }
     }
 
     fun previousStep(){
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()!!)
+        //обновляем состояния узлов
+        updateAllNodes(snapMap)
 
+        //перерисовываем
+        graphView.update()
+
+        for(n in nodes){
+            n.reset()
+        }
     }
 }
