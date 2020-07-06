@@ -6,5 +6,5 @@ interface ToolbarView {
 }
 
 class ToolbarPresenter(toolbarView: ToolbarView) {
-
+    fun
 }
