@@ -303,7 +303,10 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                     if(currentGraphViewState is GraphViewState.DefaultState)
                     {
                         if(isAlgorithmRunning) return
-                        presenter.addNode(UINode(Coordinate(mouseEvent.x, mouseEvent.y)))
+                        else {
+                            if(findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y)) == null)
+                                presenter.addNode(UINode(Coordinate(mouseEvent.x, mouseEvent.y)))
+                        }
                     }
             }
         }

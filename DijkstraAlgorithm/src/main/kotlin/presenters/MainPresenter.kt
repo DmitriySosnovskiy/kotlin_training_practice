@@ -171,8 +171,16 @@ class MainPresenter(
             if (e.sourceNode == deleted || e.endNode == deleted)
                 removableEdges.add(e)
         }
-
         edges.removeAll(removableEdges)
+
+        val removableDualEdges = ArrayList<UIDualEdge>()
+        dualEdges.forEach {
+            if(it.edge1.sourceNode == deleted || it.edge2.sourceNode == deleted) {
+                removableDualEdges.add(it)
+            }
+        }
+        dualEdges.removeAll(removableDualEdges)
+
         nodes.remove(deleted)
         graphView.update()
     }
