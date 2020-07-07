@@ -12,4 +12,5 @@ sealed class GraphViewState {
 
     class CreatingEdgeAndSheetMovingState(val creatingEdgeState: CreatingEdgeState,
                                           val sheetMovingState: SheetMovingState) : GraphViewState()
+
 }

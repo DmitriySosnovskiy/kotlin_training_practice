@@ -42,6 +42,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     private val mathProvider = GraphMathProvider()
 
+    private var isAlgorithmRunning = false
+
     private var currentGraphViewState: GraphViewState = GraphViewState.DefaultState
         set(newGraphViewState) {
             when(newGraphViewState)
@@ -226,6 +228,10 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                     .creatingEdgeState
             }
 
+            is GraphViewState.NodeDraggingState, is GraphViewState.SheetMovingState ->
+            { currentGraphViewState = GraphViewState.DefaultState}
+
+
             else -> {
                 currentGraphViewState = GraphViewState.DefaultState
             }
@@ -236,6 +242,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     override fun mouseEntered(mouseEvent: MouseEvent) { }
 
     //Нажатие любой кнопки мышки (и колёсика)
+    @ExperimentalUnsignedTypes
     override fun mouseClicked(mouseEvent: MouseEvent) {
         when(mouseEvent.clickCount) {
 
@@ -247,6 +254,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                         when(currentGraphViewState)
                         {
                             is GraphViewState.DefaultState -> {
+                                if(isAlgorithmRunning) return
+
                                 val node: UINode? = findNodeUnderMouse(Coordinate(mouseEvent.x, mouseEvent.y))
                                 if(node != null)
                                     createAndShowPopupMenuOnNode(mouseEvent, node)
@@ -292,7 +301,10 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                 //Левая кнопка
                 if(mouseEvent.button == MouseEvent.BUTTON1)
                     if(currentGraphViewState is GraphViewState.DefaultState)
+                    {
+                        if(isAlgorithmRunning) return
                         presenter.addNode(UINode(Coordinate(mouseEvent.x, mouseEvent.y)))
+                    }
             }
         }
     }
@@ -335,7 +347,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     private fun onRightMouseButtonDragging(dragCoordinate: Coordinate){
         when(currentGraphViewState)
         {
-            GraphViewState.DefaultState, is GraphViewState.CreatingEdgeState -> {
+            GraphViewState.DefaultState, is GraphViewState.CreatingEdgeState-> {
 
                 currentGraphViewState =
                     if(currentGraphViewState is GraphViewState.DefaultState)
@@ -429,6 +441,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     private fun setCursorHand() = run { cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) }
     private fun resetCursorToArrow() = run { cursor = Cursor.getDefaultCursor() }
 
+    @ExperimentalUnsignedTypes
     private fun createAndShowPopupMenuOnNode(sourceMouseEvent: MouseEvent, affectedNode: UINode) {
         val popupMenu = JPopupMenu()
 
@@ -439,8 +452,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
             if(edgeWeightString != null) {
                 try {
-                    val edgeWeight: Int = edgeWeightString.toInt()
-                    currentGraphViewState = GraphViewState.CreatingEdgeState(affectedNode, edgeWeight)
+                    val edgeWeight: UInt = edgeWeightString.toUInt()
+                    currentGraphViewState = GraphViewState.CreatingEdgeState(affectedNode, edgeWeight.toInt())
                 } catch (exception: NumberFormatException) {
                     JOptionPane.showMessageDialog(
                         null, "Вы ввели некорректное значение веса ребра",
@@ -474,5 +487,9 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
             " ", JOptionPane.YES_NO_OPTION)
 
+    }
+
+    override fun setAlgorithmRunningFlag(isAlgorithmRunning: Boolean) {
+        this.isAlgorithmRunning = isAlgorithmRunning
     }
 }

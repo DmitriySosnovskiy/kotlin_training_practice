@@ -4,15 +4,13 @@ import models.Edge
 import models.Graph
 import models.SnapshotKeeper
 import models.Snapshot
-import views.graphview.TwoNumbersRequestPane
-import views.graphview.UIDualEdge
-import views.graphview.UIEdge
-import views.graphview.UINode
+import views.graphview.*
 import javax.swing.JOptionPane
 
 interface GraphView {
     fun update()
     fun displayDijkstraAlgorithmResult(result: Int)
+    fun setAlgorithmRunningFlag(isAlgorithmRunning: Boolean)
 }
 
 class DijkstraAlgorithmController(){
@@ -63,6 +61,9 @@ class MainPresenter(
                 if (nodes != null) {
                     val firstNode = nodes.first
                     val secondNode = nodes.second
+
+                    graphView.setAlgorithmRunningFlag(true)
+                    graphView.update()
                     startAlgorithm(firstNode, secondNode)
                 }
                 else {
