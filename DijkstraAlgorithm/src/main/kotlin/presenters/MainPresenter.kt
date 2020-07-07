@@ -56,6 +56,8 @@ class MainPresenter(
         when (event) {
             is Event.OnStartAlgorithm -> {
 
+                (event as Event.SaveGraph).fileName
+
                 val nodes: Pair<Int, Int>? = requestStartAndEndNodesNumbers()
 
                 if (nodes != null) {
@@ -122,8 +124,6 @@ class MainPresenter(
     }
 
     fun addEdge(new:UIEdge){
-        if (new.weight.toInt()<=0)
-            return
         for (e in edges) {
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
@@ -143,8 +143,27 @@ class MainPresenter(
     }
 
     fun deleteEdge(deleted:UIEdge){
-        edges.remove(deleted)
-        graphView.update()
+
+        val isDeleted = edges.remove(deleted)
+        if(!isDeleted)
+        {
+            dualEdges.forEach {
+                if(it.edge1 == deleted){
+                    edges.add(it.edge2)
+                    dualEdges.remove(it)
+                    graphView.update()
+                    return
+                }
+                if(it.edge2 == deleted)
+                {
+                    edges.add(it.edge1)
+                    dualEdges.remove(it)
+                    graphView.update()
+                    return
+                }
+            }
+        }
+        else graphView.update()
     }
 
     fun deleteNode(deleted:UINode){

@@ -171,7 +171,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         panelGraphics.stroke = BasicStroke((UIConstants.edgeWidth/2).toFloat())
         panelGraphics.color = UIConstants.edgeColor
 
-        val coordinates = mathProvider.calculateDualEdgeHeightCoordinates(dualEdge)
+        val coordinates = mathProvider.calculateDualEdgeCoordinates(dualEdge)
         val arrow1 = mathProvider.calculateArrowForEdge(
             coordinates.first.first, coordinates.second.second
         )
@@ -411,9 +411,21 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     }
 
     private fun findEdgeUnderMouse(cursorCoordinate: Coordinate) : UIEdge? {
-        edges.forEach() {
+        edges.forEach {
             if(mathProvider.isPointInsideEdgeRectangle(it, cursorCoordinate))
                 return it
+        }
+
+        dualEdges.forEach {
+            val edgesPoints = mathProvider.calculateDualEdgeCoordinates(it)
+
+            if(mathProvider.isPointInsideEdgeRectangle(
+                    edgesPoints.first.first, edgesPoints.second.second, cursorCoordinate))
+                return it.edge1
+
+            if(mathProvider.isPointInsideEdgeRectangle(
+                    edgesPoints.first.second, edgesPoints.second.first, cursorCoordinate))
+                return it.edge2
         }
 
         return null

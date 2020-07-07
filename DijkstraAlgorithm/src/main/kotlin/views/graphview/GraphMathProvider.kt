@@ -56,7 +56,36 @@ class GraphMathProvider {
         return false
     }
 
-    fun calculateDualEdgeHeightCoordinates(dualEdge: UIDualEdge)
+    fun isPointInsideEdgeRectangle(edgeStart: Coordinate, edgeEnd: Coordinate, pointCoordinate: Coordinate) : Boolean {
+        val x1 = edgeStart.x
+        val y1 = edgeStart.y
+
+        val x2 = edgeEnd.x
+        val y2 = edgeEnd.y
+
+        //ax + by + c = 0 - уравнение прямой
+        val a = y1-y2
+        val b = x2-x1
+        val c = x1*y2-x2*y1
+
+        val x0 = pointCoordinate.x
+        val y0 = pointCoordinate.y
+
+        val distanceToLine = abs(a*x0 + b*y0 + c) / sqrt(a.toDouble().pow(2) + b.toDouble().pow(2))
+
+        if(distanceToLine <= UIConstants.edgeWidth) {
+            val maxX = if(x1 >= x2) x1 else x2
+            val maxY = if(y1 >= y2) y1 else y2
+            val minX = if(x1 >= x2) x2 else x1
+            val minY = if(y1 >= y2) y2 else y1
+
+            if(x0 in minX..maxX && y0 in minY..maxY) { return true }
+        }
+
+        return false
+    }
+
+    fun calculateDualEdgeCoordinates(dualEdge: UIDualEdge)
             : Pair<Pair<Coordinate, Coordinate>, Pair<Coordinate,Coordinate>> {
         val x1 = dualEdge.edge1.sourceNode.coordinate.x
         val y1 = dualEdge.edge1.sourceNode.coordinate.y
