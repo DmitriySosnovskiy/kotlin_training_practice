@@ -25,10 +25,11 @@ class DijkstraAlgorithmController(){
         this.startNode = startNode
         this.endNode = endNode
         this.snapshotKeeper = snapshots
-        currentStep = 0
+        currentStep = -1
     }
 
     fun getNextStep():Snapshot?{
+        if (currentStep>=snapshotKeeper.getSize()-1) return null
         currentStep++
         return snapshotKeeper.getSnapshot(currentStep)
     }
@@ -42,6 +43,7 @@ class DijkstraAlgorithmController(){
     fun getLast():Snapshot?{
         return snapshotKeeper.getSnapshot(snapshotKeeper.getSize())
     }
+
 }
 
 
@@ -92,6 +94,12 @@ class MainPresenter(
             else -> {
                 null
             }
+            is Event.NextStep->{
+                nextStep()
+            }
+            is Event.PreviousStep->{
+                previousStep()
+            }
         }
     }
 
@@ -140,7 +148,6 @@ class MainPresenter(
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
         }
-
         val graph = Graph(gr)
         graph.dijkstra(startNode) //прогнали алгоритм
         dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())

@@ -48,8 +48,8 @@ class Vertex(val name: Int) : Comparable<Vertex> {
         if (previous == null)
             pr = "n"
         if (dist == Int.MAX_VALUE)
-            return "(-, $pr)"
-        return "($dist, $pr)"
+            return "($name,-, $pr)"
+        return "($name,$dist, $pr)"
     }
 
 }
