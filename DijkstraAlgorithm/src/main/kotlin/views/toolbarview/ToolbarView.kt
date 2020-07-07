@@ -6,8 +6,10 @@ import presenters.ToolbarView
 import presenters.ToolbarViewElement
 import views.UIConstants
 import java.awt.Color
+import java.io.FileFilter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import javax.swing.filechooser.FileNameExtensionFilter
 
 class ToolbarView : JPanel(), ToolbarView {
 
@@ -107,6 +109,8 @@ class ToolbarView : JPanel(), ToolbarView {
 
     override fun getFilePath() : String? {
         val fileChooser = JFileChooser()
+        fileChooser.fileFilter = FileNameExtensionFilter(".txt", "txt")
+        fileChooser.isAcceptAllFileFilterUsed = false
         val action = fileChooser.showDialog(null, "Выберите файл")
 
         if (action == JFileChooser.APPROVE_OPTION)
