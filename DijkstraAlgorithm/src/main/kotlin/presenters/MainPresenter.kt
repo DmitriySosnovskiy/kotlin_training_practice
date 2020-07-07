@@ -65,6 +65,7 @@ class MainPresenter(
                 if (nodes != null) {
                     val firstNode = nodes.first
                     val secondNode = nodes.second
+                    graphView.setAlgorithmRunningFlag(true)
                     startAlgorithm(firstNode, secondNode)
                 }
                 else {

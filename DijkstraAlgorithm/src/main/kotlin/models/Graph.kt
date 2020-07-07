@@ -44,7 +44,7 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     }
 
     override fun toString() :String{
-        var pr :String = (previous?.name).toString()
+        var pr :String = (previous?.name?.plus(1)).toString()
         if (previous == null)
             pr = "n"
         if (dist == Int.MAX_VALUE)
