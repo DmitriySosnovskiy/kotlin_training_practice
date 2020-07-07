@@ -30,11 +30,11 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     fun printPath(): String{
         var endString: String = ""
         endString = when(previous){
-            this -> name.toString()
-            null -> "До вершины $name невозможно добраться"
+            this -> (name+1).toString()
+            null -> "До вершины ${name+1} невозможно добраться"
             else -> {
                 val str: String = previous!!.printPath()
-                "$str -> $name($dist)"
+                "$str -> ${name+1}($dist)"
             }
         }
         return endString
