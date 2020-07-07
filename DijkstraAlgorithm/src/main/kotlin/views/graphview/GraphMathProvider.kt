@@ -99,7 +99,7 @@ class GraphMathProvider {
         val len1 = abs(x1-x2)
         val len2 = abs(y1-y2)
 
-        val hypotenuseLen = sqrt(len1.toDouble().pow(2) + len2.toDouble().pow(2))
+        val hypotenuseLen = sqrt(len1.pow(2) + len2.pow(2))
 
         val angleSin: Double = len2 / hypotenuseLen
         val angleCos: Double = sqrt(1 - angleSin.pow(2))
@@ -178,6 +178,45 @@ class GraphMathProvider {
                 <= node.radius.toDouble().pow(2.0))
     }
 
+    fun calculateArrowForEdge(startPoint: Coordinate, endPoint: Coordinate) :  UIEdgeArrow {
+        val x1 = startPoint.x
+        val y1 = startPoint.y
+
+        val x2 = endPoint.x
+        val y2 = endPoint.y
+
+        val point1 = DoubleCoordinate(x2.toDouble(), y2.toDouble())
+
+        val mainLineVector = DoubleCoordinate(x1.toDouble(), y1.toDouble()) - point1
+        val mainLineUnitVector = normaliseVector(mainLineVector)
+
+        val widthOffsetVector = mainLineUnitVector * UIConstants.arrowWidth
+
+        val widthPoint = point1 + widthOffsetVector
+
+        //перпендикулярный вектор
+        val heightVector = if (mainLineUnitVector.x == 0.0)
+            DoubleCoordinate(1.0, 0.0)
+                else
+                if(mainLineUnitVector.y == 0.0)
+            DoubleCoordinate(0.0, 1.0)
+                else
+            DoubleCoordinate(
+                -1 * (mainLineUnitVector.y/mainLineUnitVector.x), 1.0)
+
+        println("${mainLineUnitVector.x}    ${mainLineUnitVector.y}")
+
+        val heightUnitVector = normaliseVector(heightVector)
+
+        val heightOffsetVector = heightUnitVector * UIConstants.arrowHeight
+
+        val point2 = widthPoint + heightOffsetVector
+        val point3 = widthPoint - heightOffsetVector
+
+        return UIEdgeArrow(point1.toInt(), point2.toInt(), point3.toInt())
+
+    }
+
     fun calculateEdgeArrow(edge: UIEdge) : UIEdgeArrow {
         val x1 = edge.sourceNode.coordinate.x
         val y1 = edge.sourceNode.coordinate.y
@@ -247,7 +286,7 @@ class GraphMathProvider {
     //Возвращает единичный вектор по заданному
     private fun normaliseVector(vector: DoubleCoordinate) : DoubleCoordinate {
         val vectorLen = sqrt(vector.x.pow(2) + vector.y.pow(2))
-
+        if(vectorLen == 0.0) return DoubleCoordinate(1.0, 1.0)
         return DoubleCoordinate(vector.x / vectorLen, vector.y / vectorLen)
     }
 

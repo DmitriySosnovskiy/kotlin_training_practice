@@ -144,6 +144,16 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
         val arrow = mathProvider.calculateEdgeArrow(edge)
 
+        val textCoordinate = mathProvider.calculateEdgeWeightTextPosition(edge)
+        panelGraphics.font = UIConstants.edgeWeightTextFont
+        panelGraphics.drawString(edge.weight,
+            textCoordinate.x, textCoordinate.y)
+
+        drawEdgeArrow(arrow, panelGraphics)
+    }
+
+    private fun drawEdgeArrow(arrow: UIEdgeArrow, panelGraphics: Graphics2D)
+    {
         panelGraphics.drawLine(arrow.point2.x,
             arrow.point2.y,
             arrow.point1.x,
@@ -153,11 +163,6 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             arrow.point3.y,
             arrow.point1.x,
             arrow.point1.y)
-
-        val textCoordinate = mathProvider.calculateEdgeWeightTextPosition(edge)
-        panelGraphics.font = UIConstants.edgeWeightTextFont
-        panelGraphics.drawString(edge.weight,
-            textCoordinate.x, textCoordinate.y)
     }
 
     private fun drawDualEdge(dualEdge: UIDualEdge, panelGraphics: Graphics2D){
@@ -166,19 +171,29 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
         val coordinates = mathProvider.calculateDualEdgeHeightCoordinates(dualEdge)
 
+        val arrow1 = mathProvider.calculateArrowForEdge(
+            coordinates.first.first, coordinates.second.second
+        )
         panelGraphics.drawLine(
             coordinates.first.first.x,
             coordinates.first.first.y,
             coordinates.second.second.x,
             coordinates.second.second.y
         )
+        drawEdgeArrow(arrow1, panelGraphics)
 
+        val arrow2 = mathProvider.calculateArrowForEdge(
+            coordinates.second.first,
+            coordinates.first.second
+        )
         panelGraphics.drawLine(
             coordinates.first.second.x,
             coordinates.first.second.y,
             coordinates.second.first.x,
             coordinates.second.first.y
         )
+        drawEdgeArrow(arrow2, panelGraphics)
+
     }
 
     private fun drawBuildingEdge(buildingEdge: UIBuildingEdge, panelGraphics: Graphics2D)
