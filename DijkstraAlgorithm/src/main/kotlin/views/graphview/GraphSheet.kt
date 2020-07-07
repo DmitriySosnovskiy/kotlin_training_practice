@@ -133,6 +133,20 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             node.coordinate.x - textWidth/2,
             node.coordinate.y + textHeight/4)
 
+
+        if(isAlgorithmRunning) {
+            val sign =
+                "[${if (node.bestWay.isEmpty()) "-" else node.bestWay} / ${if (node.nodeFrom.isEmpty()) "-" else node.nodeFrom}]"
+            panelGraphics.font = UIConstants.nodeSignTextFont
+            val signHeight = fontMetrics.getStringBounds(sign, panelGraphics).height.toInt()
+            val signWidth = fontMetrics.getStringBounds(sign, panelGraphics).width.toInt()
+            panelGraphics.drawString(
+                sign,
+                node.coordinate.x - signWidth/5,
+                node.coordinate.y + node.radius + signHeight/2
+            )
+        }
+
     }
 
     private fun drawEdge(edge: UIEdge, panelGraphics: Graphics2D)

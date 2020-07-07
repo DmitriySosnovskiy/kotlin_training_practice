@@ -26,4 +26,5 @@ object UIConstants {
 
     val nodeTextFont = Font("Segoe UI", Font.PLAIN, 40)
     val edgeWeightTextFont = Font("Segoe UI", Font.PLAIN, 20)
+    val nodeSignTextFont = Font("Segoe UI", Font.PLAIN, 15)
 }
