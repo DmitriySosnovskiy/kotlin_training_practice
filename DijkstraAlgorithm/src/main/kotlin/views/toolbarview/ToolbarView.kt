@@ -109,8 +109,8 @@ class ToolbarView : JPanel(), ToolbarView {
 
     override fun getFilePath() : String? {
         val fileChooser = JFileChooser()
-        fileChooser.fileFilter = FileNameExtensionFilter(".txt", "txt")
-        fileChooser.isAcceptAllFileFilterUsed = false
+        //fileChooser.fileFilter = FileNameExtensionFilter(".txt", "txt")
+     //   fileChooser.isAcceptAllFileFilterUsed = false
         val action = fileChooser.showDialog(null, "Выберите файл")
 
         if (action == JFileChooser.APPROVE_OPTION)
