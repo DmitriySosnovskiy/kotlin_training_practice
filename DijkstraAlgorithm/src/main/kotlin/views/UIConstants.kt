@@ -16,6 +16,8 @@ object UIConstants {
     const val arrowWidth = 10
     const val edgeWeightTextOffsetHeight = 10
 
+    const val dualEdgeRotationAngleInGrads = Math.PI / 4
+
     val nodeFillColor = Color(106, 233, 114)
     val nodeActiveFillColor = Color(255, 0, 0)
     val nodeStrokeFillColor = Color(112, 112, 112)

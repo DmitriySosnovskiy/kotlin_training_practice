@@ -38,6 +38,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     private val nodes = presenter.nodes
     private val edges = presenter.edges
+    private val dualEdges = presenter.dualEdges
 
     private val mathProvider = GraphMathProvider()
 
@@ -85,6 +86,10 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
         edges.forEach {
             drawEdge(it, graphics2D)
+        }
+
+        dualEdges.forEach {
+            drawDualEdge(it, graphics2D)
         }
 
         var nodeIndex = 1
@@ -153,6 +158,27 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         panelGraphics.font = UIConstants.edgeWeightTextFont
         panelGraphics.drawString(edge.weight,
             textCoordinate.x, textCoordinate.y)
+    }
+
+    private fun drawDualEdge(dualEdge: UIDualEdge, panelGraphics: Graphics2D){
+        panelGraphics.stroke = BasicStroke((UIConstants.edgeWidth/2).toFloat())
+        panelGraphics.color = UIConstants.edgeColor
+
+        val coordinates = mathProvider.calculateDualEdgeHeightCoordinates(dualEdge)
+
+        panelGraphics.drawLine(
+            coordinates.first.first.x,
+            coordinates.first.first.y,
+            coordinates.second.second.x,
+            coordinates.second.second.y
+        )
+
+        panelGraphics.drawLine(
+            coordinates.first.second.x,
+            coordinates.first.second.y,
+            coordinates.second.first.x,
+            coordinates.second.first.y
+        )
     }
 
     private fun drawBuildingEdge(buildingEdge: UIBuildingEdge, panelGraphics: Graphics2D)
@@ -419,4 +445,11 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
     }
 
+    override fun displayDijkstraAlgorithmResult(result: Int) {
+        JOptionPane.showMessageDialog(null, "Найденный кратчайший путь равен $result")
+
+        val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
+            " ", JOptionPane.YES_NO_OPTION)
+
+    }
 }

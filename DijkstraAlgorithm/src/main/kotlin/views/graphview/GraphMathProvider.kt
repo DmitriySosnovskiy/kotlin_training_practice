@@ -56,6 +56,97 @@ class GraphMathProvider {
         return false
     }
 
+    fun calculateDualEdgeHeightCoordinates(dualEdge: UIDualEdge)
+            : Pair<Pair<Coordinate, Coordinate>, Pair<Coordinate,Coordinate>> {
+        val x1 = dualEdge.edge1.sourceNode.coordinate.x
+        val y1 = dualEdge.edge1.sourceNode.coordinate.y
+
+        val x2 = dualEdge.edge1.endNode.coordinate.x
+        val y2 = dualEdge.edge1.endNode.coordinate.y
+
+        val twoPoints = findPointOnCircle(DoubleCoordinate(x1.toDouble(), y1.toDouble()),
+            DoubleCoordinate(x2.toDouble(), y2.toDouble()), dualEdge.edge1.endNode.radius.toDouble())
+
+        val point11Rotated = rotatePointRelativelyToAnotherPoint(twoPoints.first,
+            DoubleCoordinate(x1.toDouble(), y1.toDouble()),
+            UIConstants.dualEdgeRotationAngleInGrads)
+
+        val point12Rotated = rotatePointRelativelyToAnotherPoint(twoPoints.first,
+            DoubleCoordinate(x1.toDouble(), y1.toDouble()),
+            -UIConstants.dualEdgeRotationAngleInGrads)
+
+        val point21Rotated = rotatePointRelativelyToAnotherPoint(twoPoints.second,
+            DoubleCoordinate(x2.toDouble(), y2.toDouble()),
+            UIConstants.dualEdgeRotationAngleInGrads)
+        val point22Rotated = rotatePointRelativelyToAnotherPoint(twoPoints.second,
+            DoubleCoordinate(x2.toDouble(), y2.toDouble()),
+            -UIConstants.dualEdgeRotationAngleInGrads)
+
+        return Pair(Pair(point11Rotated.toInt(), point12Rotated.toInt()), Pair(point21Rotated.toInt(), point22Rotated.toInt()))
+    }
+
+    private fun findPointOnCircle(
+        circleCenter1: DoubleCoordinate,
+        circleCenter2: DoubleCoordinate, radius: Double) : Pair<DoubleCoordinate, DoubleCoordinate>
+    //first это координаты на 1 ок-ти, second на 2.
+    {
+        val x1 = circleCenter1.x
+        val y1 = circleCenter1.y
+
+        val x2 = circleCenter2.x
+        val y2 = circleCenter2.y
+
+        val len1 = abs(x1-x2)
+        val len2 = abs(y1-y2)
+
+        val hypotenuseLen = sqrt(len1.toDouble().pow(2) + len2.toDouble().pow(2))
+
+        val angleSin: Double = len2 / hypotenuseLen
+        val angleCos: Double = sqrt(1 - angleSin.pow(2))
+
+        val xOffset = radius * angleCos
+        val yOffset = radius * angleSin
+
+        var pointOnCircle1 = DoubleCoordinate()
+        var pointOnCircle2 = DoubleCoordinate()
+
+        when(determineRelativeQuarter(
+            Coordinate(x2.toInt(), y2.toInt()),
+            Coordinate(x1.toInt(), y1.toInt()) ))
+        {
+            1 -> {
+                pointOnCircle1 = DoubleCoordinate(x1 - xOffset, y1 - yOffset)
+                pointOnCircle2 = DoubleCoordinate(x2 + xOffset, y2 + yOffset)
+            }
+
+            2 -> {
+                pointOnCircle1 = DoubleCoordinate(x1 + xOffset, y1 - yOffset)
+                pointOnCircle2 = DoubleCoordinate(x2 - xOffset, y2 + yOffset)
+            }
+
+            3 -> {
+                pointOnCircle1 = DoubleCoordinate(x1 + xOffset, y1 + yOffset)
+                pointOnCircle2 = DoubleCoordinate(x2 - xOffset, y2 - yOffset)
+            }
+
+            4 -> {
+                pointOnCircle1 = DoubleCoordinate(x1 - xOffset, y1 + yOffset)
+                pointOnCircle2 = DoubleCoordinate(x2 + xOffset, y2 - yOffset)
+            }
+        }
+
+        return Pair(pointOnCircle1, pointOnCircle2)
+    }
+
+    private fun rotatePointRelativelyToAnotherPoint(rotatingPoint: DoubleCoordinate,
+                                                    centerPoint: DoubleCoordinate,
+                                                    angleInRads: Double) : DoubleCoordinate {
+        return DoubleCoordinate(
+            centerPoint.x + (rotatingPoint.x - centerPoint.x) * cos(angleInRads) - (rotatingPoint.y - centerPoint.y) * sin(angleInRads),
+            centerPoint.y + (rotatingPoint.x - centerPoint.x) * sin(angleInRads) + (rotatingPoint.y - centerPoint.y) * cos(angleInRads)
+        )
+    }
+
     fun calculateEdgeWeightTextPosition(edge: UIEdge): Coordinate {
         val x1 = edge.sourceNode.coordinate.x
         val y1 = edge.sourceNode.coordinate.y

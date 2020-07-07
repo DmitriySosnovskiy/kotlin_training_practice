@@ -1,6 +1,5 @@
 package views.graphview
 
-import javafx.scene.text.FontWeight
 import views.UIConstants
 
 class UIEdge(
@@ -10,3 +9,5 @@ class UIEdge(
 ) {
     val width = UIConstants.edgeWidth
 }
+
+data class UIDualEdge(val edge1 : UIEdge, val edge2 : UIEdge)

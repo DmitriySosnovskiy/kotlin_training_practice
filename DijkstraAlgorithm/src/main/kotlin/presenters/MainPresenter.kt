@@ -5,15 +5,14 @@ import models.Graph
 import models.SnapshotKeeper
 import models.Snapshot
 import views.graphview.TwoNumbersRequestPane
+import views.graphview.UIDualEdge
 import views.graphview.UIEdge
 import views.graphview.UINode
 import javax.swing.JOptionPane
-import javax.swing.JPanel
-import javax.swing.JTextArea
-import javax.swing.JTextField
 
 interface GraphView {
     fun update()
+    fun displayDijkstraAlgorithmResult(result: Int)
 }
 
 class DijkstraAlgorithmController(){
@@ -57,7 +56,7 @@ class MainPresenter(
 
     override fun handleEvent(event: Event) {
         when (event) {
-            is Event.StartAlgorithm -> {
+            is Event.OnStartAlgorithm -> {
 
                 val nodes: Pair<Int, Int>? = requestStartAndEndNodesNumbers()
 
@@ -69,6 +68,19 @@ class MainPresenter(
                 else {
                     return
                 }
+            }
+
+            is Event.Clear -> {
+                nodes.clear()
+                edges.clear()
+                graphView.update()
+            }
+
+            is Event.NextStep->{
+                nextStep()
+            }
+            is Event.PreviousStep->{
+                previousStep()
             }
         }
     }
@@ -94,17 +106,12 @@ class MainPresenter(
             else -> {
                 null
             }
-            is Event.NextStep->{
-                nextStep()
-            }
-            is Event.PreviousStep->{
-                previousStep()
-            }
         }
     }
 
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
+    val dualEdges = ArrayList<UIDualEdge>()
 
     private val dijkstraAlgorithmController = DijkstraAlgorithmController()
 
@@ -116,9 +123,19 @@ class MainPresenter(
     fun addEdge(new:UIEdge){
         if (new.weight.toInt()<=0)
             return
-        for (e in edges){
+        for (e in edges) {
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
+        }
+
+        for(e in edges)
+        {
+            if(new.sourceNode == e.endNode && new.endNode == e.sourceNode) {
+                dualEdges.add(UIDualEdge(new, e))
+                edges.remove(e)
+                graphView.update()
+                return
+            }
         }
         edges.add(new)
         graphView.update()

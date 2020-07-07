@@ -1,7 +1,9 @@
 package presenters
 
 sealed class Event {
-    object StartAlgorithm : Event()
+    object OnStartAlgorithm : Event()
+    object AfterAlgorithmStarted : Event()
+
     class SaveGraph(val fileName: String): Event()
     class DownloadGraph (val fileName: String): Event()
     object Clear : Event()

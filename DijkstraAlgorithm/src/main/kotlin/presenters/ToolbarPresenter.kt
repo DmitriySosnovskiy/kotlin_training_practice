@@ -2,28 +2,34 @@ package presenters
 
 import javax.swing.JFileChooser
 
-interface ToolbarView {
-    fun lockSaveAndDownload()
-    fun lockStart()
+enum class ToolbarViewElement {
+    START,
+    SAVE,
+    DOWNLOAD,
+    CLEAR,
+    NEXT_STEP,
+    PREVIOUS_STEP,
+    GENERATE
 }
 
-class ToolbarPresenter(toolbarView: ToolbarView) {
-    fun handleEvent(event: Event) {
-        //add when
-        BroadcastPresenter.generateEvent(event)
-    }
+interface ToolbarView {
+    fun lockElement(element: ToolbarViewElement)
+    fun unlockElement(element: ToolbarViewElement)
+    fun getFilePath() : String?
+}
 
-    fun getFilePath() : String? {
-        val fileChooser = JFileChooser()
-        val action = fileChooser.showDialog(null, "Выберите файл")
+class ToolbarPresenter(private val toolbarView: ToolbarView) : EventSubscriber {
 
-        if (action == JFileChooser.APPROVE_OPTION)
-        {
-            val file = fileChooser.selectedFile
+    fun chainToolbarEvent(event: Event) = BroadcastPresenter.generateEvent(event)
 
-            return file.absolutePath
+    override fun handleEvent(event: Event) {
+        when (event) {
+            is Event.AfterAlgorithmStarted -> {
+                toolbarView.unlockElement(ToolbarViewElement.NEXT_STEP)
+                toolbarView.unlockElement(ToolbarViewElement.PREVIOUS_STEP)
+            }
         }
-
-        return null
     }
+
+    fun getFilePath() = toolbarView.getFilePath()
 }

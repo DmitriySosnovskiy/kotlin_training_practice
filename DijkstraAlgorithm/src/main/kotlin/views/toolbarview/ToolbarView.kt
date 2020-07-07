@@ -3,9 +3,9 @@ package views.toolbarview
 import presenters.Event
 import presenters.ToolbarPresenter
 import presenters.ToolbarView
+import presenters.ToolbarViewElement
 import views.UIConstants
 import java.awt.Color
-import java.awt.Dimension
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 
@@ -13,78 +13,109 @@ class ToolbarView : JPanel(), ToolbarView {
 
     private val toolbarPresenter = ToolbarPresenter(this)
 
+    private val btn1 = JButton("Запустить алгоритм")
+    private val btn2 = JButton("Сохранить граф")
+    private val btn3 = JButton("Загрузить граф")
+    private val btn4 = JButton("Очистить сцену")
+    private val btn5 = JButton("Предыдущий шаг алгоритма")
+    private val btn6 = JButton("Следующий шаг алгоритма")
+    private val btn7 = JButton("Сгенерировать граф")
+
     init {
         border = EmptyBorder(0, 10, 0,0)
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
-        val btn1 = JButton("Запустить алгоритм")
-        btn1.addActionListener { toolbarPresenter.handleEvent(Event.StartAlgorithm)}
+        btn1.addActionListener { toolbarPresenter.chainToolbarEvent(Event.OnStartAlgorithm)}
         add(btn1)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
 
-        val btn2 = JButton("Сохранить граф")
         btn2.addActionListener {
             val filePath: String? = toolbarPresenter.getFilePath()
 
             if (filePath != null) {
-                toolbarPresenter.handleEvent(Event.SaveGraph(filePath))
+                toolbarPresenter.chainToolbarEvent(Event.SaveGraph(filePath))
             }
         }
         add(btn2)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn3 = JButton("Загрузить граф")
         btn3.addActionListener {
             val filePath: String? = toolbarPresenter.getFilePath()
 
             if (filePath != null) {
-                toolbarPresenter.handleEvent(Event.DownloadGraph(filePath))
+                toolbarPresenter.chainToolbarEvent(Event.DownloadGraph(filePath))
             }
         }
         add(btn3)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn4 = JButton("Очистить сцену")
         btn4.addActionListener {
-            toolbarPresenter.handleEvent(Event.Clear)
+            toolbarPresenter.chainToolbarEvent(Event.Clear)
         }
         add(btn4)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn5 = JButton("Предыдущий шаг алгоритма")
         btn5.addActionListener {
-            toolbarPresenter.handleEvent(Event.PreviousStep)
+            toolbarPresenter.chainToolbarEvent(Event.PreviousStep)
         }
         add(btn5)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn6 = JButton("Следующий шаг алгоритма")
         btn6.addActionListener {
-            toolbarPresenter.handleEvent(Event.NextStep)
+            toolbarPresenter.chainToolbarEvent(Event.NextStep)
         }
         add(btn6)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val btn7 = JButton("Сгенерировать граф")
         btn7.addActionListener {
-            toolbarPresenter.handleEvent(Event.GenerateGraph)
+            toolbarPresenter.chainToolbarEvent(Event.GenerateGraph)
         }
         add(btn7)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
         val logTextView = JTextField()
         logTextView.isEditable = false
-        logTextView.size = Dimension(this.width, (this.height * 0.9).toInt())
         logTextView.background = Color.WHITE
 
         add(logTextView)
     }
 
-    override fun lockSaveAndDownload() {
-
+    override fun lockElement(element: ToolbarViewElement) {
+        when (element) {
+            ToolbarViewElement.START -> btn1.isEnabled = false
+            ToolbarViewElement.SAVE -> btn2.isEnabled = false
+            ToolbarViewElement.DOWNLOAD -> btn3.isEnabled = false
+            ToolbarViewElement.CLEAR -> btn4.isEnabled = false
+            ToolbarViewElement.NEXT_STEP -> btn5.isEnabled = false
+            ToolbarViewElement.PREVIOUS_STEP -> btn6.isEnabled = false
+            ToolbarViewElement.GENERATE -> btn7.isEnabled = false
+        }
     }
 
-    override fun lockStart() {
+    override fun unlockElement(element: ToolbarViewElement) {
+        when (element) {
+            ToolbarViewElement.START -> btn1.isEnabled = true
+            ToolbarViewElement.SAVE -> btn2.isEnabled = true
+            ToolbarViewElement.DOWNLOAD -> btn3.isEnabled = true
+            ToolbarViewElement.CLEAR -> btn4.isEnabled = true
+            ToolbarViewElement.NEXT_STEP -> btn5.isEnabled = true
+            ToolbarViewElement.PREVIOUS_STEP -> btn6.isEnabled = true
+            ToolbarViewElement.GENERATE -> btn7.isEnabled = true
+        }
+    }
+
+    override fun getFilePath() : String? {
+        val fileChooser = JFileChooser()
+        val action = fileChooser.showDialog(null, "Выберите файл")
+
+        if (action == JFileChooser.APPROVE_OPTION)
+        {
+            val file = fileChooser.selectedFile
+
+            return file.absolutePath
+        }
+
+        return null
     }
 }
