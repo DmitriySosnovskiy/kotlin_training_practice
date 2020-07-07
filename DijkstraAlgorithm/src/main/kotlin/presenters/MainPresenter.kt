@@ -56,8 +56,6 @@ class MainPresenter(
         when (event) {
             is Event.OnStartAlgorithm -> {
 
-                (event as Event.SaveGraph).fileName
-
                 val nodes: Pair<Int, Int>? = requestStartAndEndNodesNumbers()
 
                 if (nodes != null) {
