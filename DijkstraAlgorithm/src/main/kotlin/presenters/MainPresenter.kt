@@ -216,7 +216,7 @@ class MainPresenter(
 
         val graph = Graph(gr)
         graph.dijkstra(startNode-1) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath(endNode)) // здесь принимаю ответ
+        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath(endNode-1)) // здесь принимаю ответ
 
 
     }

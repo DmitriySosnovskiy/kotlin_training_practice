@@ -510,8 +510,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         popupMenu.show(sourceMouseEvent.component, sourceMouseEvent.x, sourceMouseEvent.y)
     }
 
-    override fun displayDijkstraAlgorithmResult(result: Int) {
-        JOptionPane.showMessageDialog(null, "Найденный кратчайший путь равен $result")
+    override fun displayDijkstraAlgorithmResult(result: String) {
+        JOptionPane.showMessageDialog(null, "Найденный кратчайший путь :\n$result")
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
             " ", JOptionPane.YES_NO_OPTION)
