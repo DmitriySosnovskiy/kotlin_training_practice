@@ -42,7 +42,7 @@ class DijkstraAlgorithmController(){
     }
 
     fun getLast():Snapshot?{
-        return snapshotKeeper.getSnapshot(snapshotKeeper.getSize())
+        return snapshotKeeper.getSnapshot(snapshotKeeper.getSize()-1)
     }
 
 }
@@ -77,6 +77,8 @@ class MainPresenter(
                 nodes.clear()
                 edges.clear()
                 graphView.update()
+
+
             }
 
             is Event.NextStep->{
@@ -90,6 +92,9 @@ class MainPresenter(
             }
             is Event.SaveGraph->{
                 saveGraph((event as Event.SaveGraph).fileName)
+            }
+            is Event.EndAlgorithm->{
+                finishAlgorithm()
             }
         }
     }
@@ -210,6 +215,8 @@ class MainPresenter(
         val graph = Graph(gr)
         graph.dijkstra(startNode-1) //прогнали алгоритм
         dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())
+
+
     }
 
     private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
@@ -252,8 +259,12 @@ class MainPresenter(
 
     }
     fun finishAlgorithm(){
+        for(n in nodes){
+            n.reset()
+        }
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getLast()!!)
         updateAllNodes(snapMap)
+        graphView.displayDijkstraAlgorithmResult(nodes[dijkstraAlgorithmController.endNode].bestWay.toInt())
         graphView.update()
     }
 
