@@ -80,16 +80,16 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                 drawBuildingEdge(currentCreatingEdgeState.creatingEdge, graphics2D)
             }
         }
-
-
         //Сначала рисуем рёбра, чтобы вершины были сверху них.
 
         edges.forEach {
-            drawEdge(it, graphics2D)
+            if (!mathProvider.areNodesColliding(it.sourceNode, it.endNode))
+                drawEdge(it, graphics2D)
         }
 
         dualEdges.forEach {
-            drawDualEdge(it, graphics2D)
+            if (!mathProvider.areNodesColliding(it.edge1.sourceNode, it.edge1.endNode))
+                drawDualEdge(it, graphics2D)
         }
 
         var nodeIndex = 1
@@ -170,10 +170,11 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         panelGraphics.color = UIConstants.edgeColor
 
         val coordinates = mathProvider.calculateDualEdgeHeightCoordinates(dualEdge)
-
         val arrow1 = mathProvider.calculateArrowForEdge(
             coordinates.first.first, coordinates.second.second
         )
+        val weightPosition1 = mathProvider.calculateEdgeWeightTextPosition(coordinates.first.first,
+            coordinates.second.second)
         panelGraphics.drawLine(
             coordinates.first.first.x,
             coordinates.first.first.y,
@@ -181,11 +182,17 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             coordinates.second.second.y
         )
         drawEdgeArrow(arrow1, panelGraphics)
+        panelGraphics.font = UIConstants.edgeWeightTextFont
+        panelGraphics.drawString(dualEdge.edge1.weight,
+            weightPosition1.x, weightPosition1.y)
+
 
         val arrow2 = mathProvider.calculateArrowForEdge(
             coordinates.second.first,
             coordinates.first.second
         )
+        val weightPosition2 = mathProvider.calculateEdgeWeightTextPosition(coordinates.first.second,
+            coordinates.second.first)
         panelGraphics.drawLine(
             coordinates.first.second.x,
             coordinates.first.second.y,
@@ -193,7 +200,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             coordinates.second.first.y
         )
         drawEdgeArrow(arrow2, panelGraphics)
-
+        panelGraphics.drawString(dualEdge.edge2.weight,
+            weightPosition2.x, weightPosition2.y)
     }
 
     private fun drawBuildingEdge(buildingEdge: UIBuildingEdge, panelGraphics: Graphics2D)

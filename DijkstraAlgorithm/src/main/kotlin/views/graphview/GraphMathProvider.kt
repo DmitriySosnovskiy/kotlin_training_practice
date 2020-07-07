@@ -171,6 +171,30 @@ class GraphMathProvider {
         return (centerPoint + textOffsetVector).toInt()
     }
 
+    fun calculateEdgeWeightTextPosition(point1: Coordinate, point2: Coordinate): Coordinate {
+        val x1 = point1.x
+        val y1 = point1.y
+
+        val x2 = point2.x
+        val y2 = point2.y
+
+        val centerPoint = DoubleCoordinate((x1+x2)/2.0, (y1+y2)/2.0)
+
+        val lineVector = DoubleCoordinate(x1 - centerPoint.x, y1 - centerPoint.y)
+
+        val normalToLineVector =
+            if (lineVector.x == 0.0)
+                DoubleCoordinate(-1.0, 0.0)
+            else
+                DoubleCoordinate(-1 * abs(lineVector.y/lineVector.x), 1.0)
+
+        val unitNormalToLineVector = normaliseVector(normalToLineVector)
+
+        val textOffsetVector = unitNormalToLineVector * UIConstants.edgeWeightTextOffsetHeight
+
+        return (centerPoint + textOffsetVector).toInt()
+    }
+
     //Используется уравнение окружности
     fun isPointInsideNodeCircle(pointCoordinate: Coordinate, node: UINode) : Boolean {
         return (((pointCoordinate.x - node.coordinate.x).toDouble()).pow(2.0) +
@@ -203,8 +227,6 @@ class GraphMathProvider {
                 else
             DoubleCoordinate(
                 -1 * (mainLineUnitVector.y/mainLineUnitVector.x), 1.0)
-
-        println("${mainLineUnitVector.x}    ${mainLineUnitVector.y}")
 
         val heightUnitVector = normaliseVector(heightVector)
 
@@ -306,4 +328,13 @@ class GraphMathProvider {
         else 1
     }
 
+    fun areNodesColliding(node1: UINode, node2: UINode) : Boolean {
+        val len1 = abs(node1.coordinate.x-node2.coordinate.x)
+        val len2 = abs(node1.coordinate.y-node2.coordinate.y)
+
+        val distance = sqrt(len1.toDouble().pow(2) + len2.toDouble().pow(2))
+
+        //просто чтобы не рисовать рёбра когда не надо
+        return distance < (UIConstants.circleStrokeWidth + UIConstants.circleRadius)
+    }
 }

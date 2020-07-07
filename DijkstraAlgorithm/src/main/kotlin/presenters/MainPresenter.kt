@@ -99,8 +99,8 @@ class MainPresenter(
             //Нажата "Ок"
             0 -> {
                 if(numbers.size == 0)  null
-                else Pair(numbers[optionsHolder.startNodeNumber.selectedIndex],
-                    numbers[optionsHolder.endNodeNumber.selectedIndex])
+                else Pair(optionsHolder.startNodeNumber.selectedIndex,
+                    optionsHolder.endNodeNumber.selectedIndex)
             }
 
             else -> {
