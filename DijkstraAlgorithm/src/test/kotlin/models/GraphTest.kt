@@ -134,7 +134,7 @@ internal class IncorrectGraphTest() {
 }
 
 
-/*internal class IncorrectAutoGraphTest() {
+internal class IncorrectAutoGraphTest() {
 
     lateinit var GRAPH: kotlin.collections.List<Edge>
     var START: Int = 0
@@ -147,18 +147,37 @@ internal class IncorrectGraphTest() {
             Edge(1, 3, 9),
             Edge(2, 3, 1)
         )
-        START = 1
-        END = 3
     }
 
     @TestFactory
     fun autoTestCorrectEndVertex() = listOf(
-        1 to "Граф не содержит конечную вершину '${END}'",
-        2 to "Граф не содержит конечную вершину '${END}'",
-        3 to "Граф не содержит конечную вершину '${END}'"
+        -1 to "Граф не содержит конечную вершину '-1'",
+         2 to "",
+         6 to "Граф не содержит конечную вершину '6'"
     ).map { (input, expected) ->
-        dynamicTest("Square of $input should equal $expected") {
-            assertEquals(expected, calculator.square(input))
+        dynamicTest("Конечная вершина $input: $expected") {
+            with(Graph(GRAPH)) {
+                START = 1
+                printPath(input)
+                assertEquals(expected, testOutput)
+                testOutput = ""
+            }
         }
     }
-}*/
+
+    @TestFactory
+    fun autoTestCorrectStartVertex() = listOf(
+        -11 to "Граф не содержит стартовую вершину '-11'",
+        1 to "",
+        66 to "Граф не содержит стартовую вершину '66'"
+    ).map { (input, expected) ->
+        dynamicTest("Стартовая вершина $input: $expected") {
+            with(Graph(GRAPH)) {
+                END = 3
+                dijkstra(input)
+                assertEquals(expected, testOutput)
+                testOutput = ""
+            }
+        }
+    }
+}
