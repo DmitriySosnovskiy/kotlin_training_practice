@@ -13,7 +13,7 @@ import java.nio.file.StandardOpenOption
 
 interface GraphView {
     fun update()
-    fun displayDijkstraAlgorithmResult(result: Int)
+    fun displayDijkstraAlgorithmResult(result: String)
     fun setAlgorithmRunningFlag(isAlgorithmRunning: Boolean)
 }
 
@@ -22,10 +22,12 @@ class DijkstraAlgorithmController(){
     var startNode : Int = -1
     var endNode : Int = -1
     var currentStep : Int = 0
-    fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper){
+    var answer:String = ""
+    fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper, answer:String){
         this.startNode = startNode-1
         this.endNode = endNode-1
         this.snapshotKeeper = snapshots
+        this.answer = answer
         currentStep = -1
     }
 
@@ -214,7 +216,7 @@ class MainPresenter(
 
         val graph = Graph(gr)
         graph.dijkstra(startNode-1) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())
+        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath()) // здесь принимаю ответ
 
 
     }
@@ -264,7 +266,7 @@ class MainPresenter(
         }
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getLast()!!)
         updateAllNodes(snapMap)
-        graphView.displayDijkstraAlgorithmResult(nodes[dijkstraAlgorithmController.endNode].bestWay.toInt())
+        graphView.displayDijkstraAlgorithmResult(dijkstraAlgorithmController.answer)
         graphView.update()
     }
 

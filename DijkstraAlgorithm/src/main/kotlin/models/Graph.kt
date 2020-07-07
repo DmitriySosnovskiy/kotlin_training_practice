@@ -192,7 +192,9 @@ class Graph(private val edges: List<Edge>){
     fun getSnapshotHistory() :SnapshotKeeper{
         return snapshotKeeper
     }
-
+    fun getPath():String{
+        return "Ну и кал"
+    }
     fun getEdgesAsString(): String {
         val edgesAsString = StringBuilder("")
         for (e in edges)
