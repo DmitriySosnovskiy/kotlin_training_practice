@@ -4,8 +4,13 @@ import models.Edge
 import models.Graph
 import models.SnapshotKeeper
 import models.Snapshot
+import views.graphview.TwoNumbersRequestPane
 import views.graphview.UIEdge
 import views.graphview.UINode
+import javax.swing.JOptionPane
+import javax.swing.JPanel
+import javax.swing.JTextArea
+import javax.swing.JTextField
 
 interface GraphView {
     fun update()
@@ -51,7 +56,41 @@ class MainPresenter(
     override fun handleEvent(event: Event) {
         when (event) {
             is Event.StartAlgorithm -> {
-                startAlgorithm()
+
+                val nodes: Pair<Int, Int>? = requestStartAndEndNodesNumbers()
+
+                if (nodes != null) {
+                    val firstNode = nodes.first
+                    val secondNode = nodes.second
+                    startAlgorithm(firstNode, secondNode)
+                }
+                else {
+                    return
+                }
+            }
+        }
+    }
+
+    private fun requestStartAndEndNodesNumbers() : Pair<Int, Int>? {
+        val numbers = ArrayList<Int>()
+        for(i in 1..nodes.size)
+            numbers.add(i)
+
+        val optionsHolder = TwoNumbersRequestPane(numbers)
+
+        val responseCode =
+            JOptionPane.showConfirmDialog(null, optionsHolder, "Исходные данные", JOptionPane.OK_CANCEL_OPTION)
+
+        return when (responseCode) {
+            //Нажата "Ок"
+            0 -> {
+                if(numbers.size == 0)  null
+                else Pair(numbers[optionsHolder.startNodeNumber.selectedIndex],
+                    numbers[optionsHolder.endNodeNumber.selectedIndex])
+            }
+
+            else -> {
+                null
             }
         }
     }
