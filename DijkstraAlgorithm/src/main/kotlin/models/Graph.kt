@@ -27,15 +27,17 @@ class Vertex(val name: Int) : Comparable<Vertex> {
      * иначе, рекуррентно выводится путь в виде -> v(w)
      */
 
-    fun printPath(){
-        when(previous){
-            this -> print(name)
-            null -> print("До вершины $name невозможно добраться")
+    fun printPath(): String{
+        var endString: String = ""
+        endString = when(previous){
+            this -> name.toString()
+            null -> "До вершины $name невозможно добраться"
             else -> {
-                previous!!.printPath()
-                print(" -> $name($dist)")
+                val str: String = previous!!.printPath()
+                "$str -> $name($dist)"
             }
         }
+        return endString
     }
 
     override fun compareTo(other: Vertex): Int {
@@ -149,35 +151,40 @@ class Graph(private val edges: List<Edge>){
     }
 
     // Печатает путь от начальной вершины до заданной конечной
-    fun printPath(endName: Int) {
+    fun printPath(endName: Int): String {
+        var strEnd: String = ""
 
-        if (!graph.containsKey(endName)) {
-            println("Граф не содержит конечную вершину '${endName}'")
-            return
-        }
+        if (!graph.containsKey(endName))
+            return "Граф не содержит конечную вершину '${endName}'"
 
-        graph[endName]!!.printPath()
-        println()
+        /*if (showAllPaths)
+            strEnd = printAllPaths()
+        else*/
+            strEnd = graph[endName]!!.printPath()
 
-        // Печатает путь от начальной вершины до каждой другой
-        /*
-         * for (v in graph.values) {
-         *     v.printPath()
-         *     println()
-         * }
-         * println()
-         */
+        return strEnd
+    }
+
+    // Печатает путь от начальной вершины до каждой другой
+    fun printAllPaths(): String{
+
+        var endString: String = ""
+
+        for (v in graph.values)
+            endString += v.printPath() + "\n"
+
+        return endString
     }
 
     /*   Пример использования:
      *   val GRAPH:List<Edge> = listOf(
-     *       Edge("a", "b", 7),
-     *       Edge("a", "c", 9),
-     *       Edge("b", "c", 1)
+     *       Edge(1, 2, 7),
+     *       Edge(1, 3, 9),
+     *       Edge(2, 3, 1)
      *   )
      *
-     *   const val START = "a"
-     *   const val END = "c"
+     *   val START = 1
+     *   val END = 3
      *
      *   with (Graph(GRAPH)){
      *       dijkstra(START)
@@ -192,9 +199,11 @@ class Graph(private val edges: List<Edge>){
     fun getSnapshotHistory() :SnapshotKeeper{
         return snapshotKeeper
     }
-    fun getPath():String{
-        return "Ну и кал"
+
+    fun getPath(endVertex: Int): String{
+        return printPath(endVertex)
     }
+
     fun getEdgesAsString(): String {
         val edgesAsString = StringBuilder("")
         for (e in edges)

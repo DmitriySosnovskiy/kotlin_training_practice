@@ -67,8 +67,8 @@ class MainPresenter(
                 if (nodes != null) {
                     val firstNode = nodes.first
                     val secondNode = nodes.second
-                    graphView.setAlgorithmRunningFlag(true)
                     startAlgorithm(firstNode, secondNode)
+                    graphView.setAlgorithmRunningFlag(true)
                 }
                 else {
                     return
@@ -216,7 +216,7 @@ class MainPresenter(
 
         val graph = Graph(gr)
         graph.dijkstra(startNode-1) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath()) // здесь принимаю ответ
+        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath(endNode)) // здесь принимаю ответ
 
 
     }
