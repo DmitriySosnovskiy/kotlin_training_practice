@@ -34,7 +34,7 @@ class Vertex(val name: Int) : Comparable<Vertex> {
             null -> "До вершины ${name+1} невозможно добраться"
             else -> {
                 val str: String = previous!!.printPath()
-                "$str -> ${name+1}($dist)"
+                "$str ➔ ${name+1}($dist)"
             }
         }
         return endString
