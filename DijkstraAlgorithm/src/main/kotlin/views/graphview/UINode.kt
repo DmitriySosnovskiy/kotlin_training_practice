@@ -15,4 +15,8 @@ class UINode(
         bestWay = ""
         nodeFrom = ""
     }
+
+
+    override fun toString() = "${coordinate.x}, ${coordinate.y}"
+
 }

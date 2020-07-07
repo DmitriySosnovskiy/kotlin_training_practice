@@ -6,6 +6,10 @@ import models.SnapshotKeeper
 import models.Snapshot
 import views.graphview.*
 import javax.swing.JOptionPane
+import java.io.File
+import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
 interface GraphView {
     fun update()
@@ -19,8 +23,8 @@ class DijkstraAlgorithmController(){
     var endNode : Int = -1
     var currentStep : Int = 0
     fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper){
-        this.startNode = startNode
-        this.endNode = endNode
+        this.startNode = startNode-1
+        this.endNode = endNode-1
         this.snapshotKeeper = snapshots
         currentStep = -1
     }
@@ -61,9 +65,6 @@ class MainPresenter(
                 if (nodes != null) {
                     val firstNode = nodes.first
                     val secondNode = nodes.second
-
-                    graphView.setAlgorithmRunningFlag(true)
-                    graphView.update()
                     startAlgorithm(firstNode, secondNode)
                 }
                 else {
@@ -83,6 +84,12 @@ class MainPresenter(
             is Event.PreviousStep->{
                 previousStep()
             }
+            is Event.DownloadGraph->{
+                downloadGraph((event as Event.DownloadGraph).fileName)
+            }
+            is Event.SaveGraph->{
+                saveGraph((event as Event.SaveGraph).fileName)
+            }
         }
     }
 
@@ -100,8 +107,8 @@ class MainPresenter(
             //Нажата "Ок"
             0 -> {
                 if(numbers.size == 0)  null
-                else Pair(optionsHolder.startNodeNumber.selectedIndex,
-                    optionsHolder.endNodeNumber.selectedIndex)
+                else Pair(numbers[optionsHolder.startNodeNumber.selectedIndex],
+                    numbers[optionsHolder.endNodeNumber.selectedIndex])
             }
 
             else -> {
@@ -122,6 +129,8 @@ class MainPresenter(
     }
 
     fun addEdge(new:UIEdge){
+        if (new.weight.toInt()<=0)
+            return
         for (e in edges) {
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
@@ -171,6 +180,7 @@ class MainPresenter(
             if (e.sourceNode == deleted || e.endNode == deleted)
                 removableEdges.add(e)
         }
+
         edges.removeAll(removableEdges)
 
         val removableDualEdges = ArrayList<UIDualEdge>()
@@ -185,16 +195,20 @@ class MainPresenter(
         graphView.update()
     }
 
-    fun startAlgorithm(startNode:Int=1, endNode:Int=3){ //где хранить конечный и начальный узел
+    fun startAlgorithm(startNode:Int, endNode:Int){ //где хранить конечный и начальный узел
 
         val gr:ArrayList<Edge> = ArrayList<Edge>()
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
         }
-        val graph = Graph(gr)
-        graph.dijkstra(startNode) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())
+        for (e in dualEdges){
+            gr.add(Edge(nodes.indexOf(e.edge1.sourceNode),nodes.indexOf(e.edge1.endNode),e.edge1.weight.toInt()))
+            gr.add(Edge(nodes.indexOf(e.edge2.sourceNode),nodes.indexOf(e.edge2.endNode),e.edge2.weight.toInt()))
+        }
 
+        val graph = Graph(gr)
+        graph.dijkstra(startNode-1) //прогнали алгоритм
+        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory())
     }
 
     private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
@@ -242,4 +256,78 @@ class MainPresenter(
         graphView.update()
     }
 
+    private fun checkStringAndGetInfoList(info_:String) : ArrayList<List<String>>?{
+        val string = info_.replace(" ","")
+        val reg = (Regex("^(\\(\\d+,\\d+,\\d+\\),)*\\(\\d+,\\d+,\\d+\\)\$"))
+
+        if (!string.matches(reg)) return null
+
+        val match = Regex("(\\d+,\\d+,\\d+)").findAll(string)
+
+        val list = ArrayList<List<String>>()
+        for (e in match){
+            val temp = e.destructured.toList().toString()
+            list.add(temp.substring(1,temp.length-1).split(","))
+        }
+        return list
+    }
+
+    fun downloadGraph(fileName:String){
+        val inputStream: InputStream = File(fileName).inputStream()
+
+        val allInfo = mutableListOf<String>()
+        inputStream.bufferedReader().forEachLine { allInfo.add(it) }
+
+        if(allInfo.size !in 1..2) return  //если в файле больше, чем нужно строк
+
+        val nodeInfoList = (checkStringAndGetInfoList(allInfo[0].replace(" ",""))) ?: return //ошибка
+
+        var edgeInfoList : ArrayList<List<String>>? = null
+
+        if (allInfo.size==2) //нет информации о ребрах
+            edgeInfoList = (checkStringAndGetInfoList(allInfo[1].replace(" ",""))) ?: return //ошибка
+
+        //инициализируем UI граф
+
+        nodes.clear()
+        edges.clear()
+        dualEdges.clear()
+        //инициализируем вершины
+        for (n in nodeInfoList){
+            addNode(UINode(Coordinate(n[1].toInt(),n[2].toInt())))
+        }
+        if(edgeInfoList!=null) //если есть информация о ребрах
+            for (e in edgeInfoList) {
+                addEdge(UIEdge(nodes[e[0].toInt()], nodes[e[1].toInt()], e[2]))
+            }
+
+        graphView.update()
+
+    }
+    fun saveGraph(fileName:String){
+        //создаем граф из строки
+        val graphAsString = StringBuilder("")
+        for (n in nodes)
+            graphAsString.append("(${nodes.indexOf(n)}, ${n.toString()}), ")
+
+        if(graphAsString.isEmpty())
+            return  //нет узлов
+
+        graphAsString.delete(graphAsString.length - 2, graphAsString.length).append("")
+        graphAsString.append("\n")
+        for (e in edges)
+            graphAsString.append("(${nodes.indexOf(e.sourceNode)}, ${nodes.indexOf(e.endNode)}, ${e.weight}), ")
+        for (e in dualEdges){
+            graphAsString.append("(${nodes.indexOf(e.edge1.sourceNode)}, ${nodes.indexOf(e.edge1.endNode)}, ${e.edge1.weight}), ")
+            graphAsString.append("(${nodes.indexOf(e.edge2.sourceNode)}, ${nodes.indexOf(e.edge2.endNode)}, ${e.edge2.weight}), ")
+        }
+
+        if(!(edges.isEmpty() && dualEdges.isEmpty()))
+            graphAsString.delete(graphAsString.length - 2, graphAsString.length).append("")
+
+        //Записываем в файл
+        val resultFile = File(fileName)
+        Files.write(resultFile.toPath(), graphAsString.toString().toByteArray(), StandardOpenOption.CREATE)
+
+    }
 }

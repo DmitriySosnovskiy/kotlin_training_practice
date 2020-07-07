@@ -8,6 +8,9 @@ class UIEdge(
     var weight: String
 ) {
     val width = UIConstants.edgeWidth
+
+
+
 }
 
 data class UIDualEdge(val edge1 : UIEdge, val edge2 : UIEdge)
