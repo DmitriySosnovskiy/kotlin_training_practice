@@ -87,6 +87,9 @@ class ToolbarView : JPanel(), ToolbarView {
         logTextView.isEditable = false
         logTextView.background = Color.WHITE
 
+        btn5.isEnabled = false
+        btn6.isEnabled = false
+
         add(logTextView)
     }
 

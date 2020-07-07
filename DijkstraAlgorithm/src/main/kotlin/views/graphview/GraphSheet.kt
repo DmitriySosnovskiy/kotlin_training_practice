@@ -15,8 +15,6 @@ import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
 import javax.swing.JOptionPane
 
-
-
 interface GraphViewObserver {
     fun onSheetDragged(offsetX: Int, offsetY: Int)
 }
@@ -146,7 +144,6 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
                 node.coordinate.y + node.radius + signHeight/2
             )
         }
-
     }
 
     private fun drawEdge(edge: UIEdge, panelGraphics: Graphics2D)
