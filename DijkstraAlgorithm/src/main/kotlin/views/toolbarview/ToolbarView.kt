@@ -6,10 +6,8 @@ import presenters.ToolbarView
 import presenters.ToolbarViewElement
 import views.UIConstants
 import java.awt.Color
-import java.io.FileFilter
 import javax.swing.*
 import javax.swing.border.EmptyBorder
-import javax.swing.filechooser.FileNameExtensionFilter
 
 class ToolbarView : JPanel(), ToolbarView {
 
@@ -22,6 +20,8 @@ class ToolbarView : JPanel(), ToolbarView {
     private val btn5 = JButton("Предыдущий шаг алгоритма")
     private val btn6 = JButton("Следующий шаг алгоритма")
     private val btn7 = JButton("Сгенерировать граф")
+    private val btn8 = JButton("Закончить алгоритм")
+
 
     init {
         border = EmptyBorder(0, 10, 0,0)
@@ -74,6 +74,13 @@ class ToolbarView : JPanel(), ToolbarView {
             toolbarPresenter.chainToolbarEvent(Event.GenerateGraph)
         }
         add(btn7)
+        add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
+
+
+        btn8.addActionListener {
+            toolbarPresenter.chainToolbarEvent(Event.EndAlgorithm)
+        }
+        add(btn8)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
         val logTextView = JTextField()

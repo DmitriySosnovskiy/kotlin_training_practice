@@ -10,4 +10,5 @@ sealed class Event {
     object PreviousStep : Event()
     object NextStep : Event()
     object GenerateGraph : Event()
+    object EndAlgorithm : Event()
 }
