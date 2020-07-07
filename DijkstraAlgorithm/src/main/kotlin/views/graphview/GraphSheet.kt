@@ -511,7 +511,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     }
 
     override fun displayDijkstraAlgorithmResult(result: String) {
-        JOptionPane.showMessageDialog(null, "Найденный кратчайший путь :\n$result")
+        JOptionPane.showMessageDialog(null, "\n$result")
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
             " ", JOptionPane.YES_NO_OPTION)
