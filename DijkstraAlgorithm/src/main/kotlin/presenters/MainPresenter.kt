@@ -70,7 +70,6 @@ class MainPresenter(
         nodes.forEach { it.reset() }
         graphView.setAlgorithmRunningFlag(false)
         graphView.update()
-
         BroadcastPresenter.generateEvent(Event.AfterAlgorithmEnded)
     }
 
@@ -166,6 +165,10 @@ class MainPresenter(
     fun addNode(new:UINode){
         nodes.add(new)
         graphView.update()
+
+
+
+
     }
 
     fun addEdge(new:UIEdge){
@@ -237,13 +240,18 @@ class MainPresenter(
 
     fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
 
-
         //проверка на существование вершины в массиве ребер
 
         var flag = false
 
         for(e in edges){
             if (nodes.indexOf(e.sourceNode) == startNode || nodes.indexOf(e.endNode) == startNode){
+                flag = true
+                break
+            }
+        }
+        for(e in dualEdges){
+            if (nodes.indexOf(e.edge1.sourceNode) == startNode || nodes.indexOf(e.edge1.endNode) == startNode || nodes.indexOf(e.edge2.sourceNode) == startNode || nodes.indexOf(e.edge2.endNode) == startNode){
                 flag = true
                 break
             }
