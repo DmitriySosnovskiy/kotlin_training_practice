@@ -251,7 +251,8 @@ class MainPresenter(
         // snapMap[0][0] - текущий узел
         // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
         nodes[snapMap[0]!![0].toInt()].isActive = true
-        for (i in 1..snapMap.size-1){
+
+        for (i in 2..snapMap.size-1){
             nodes[snapMap[i]!![0].toInt()].bestWay = snapMap[i]!![1]
             nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
         }
@@ -260,9 +261,18 @@ class MainPresenter(
 
         val logs = StringBuilder("")
         val indexCurNode = snapMap[0]!![0].toInt()
-        logs.append("Текущий узел: ${indexCurNode}\n")
-        logs.append("Лучший путь до узла: ${snapMap[indexCurNode+1]!![1].toInt()}\n")
-        logs.append("Узел, из которого пришли, чтобы получился лучший путь: ${snapMap[indexCurNode+1]!![2].toInt()}")
+        val isRelax = snapMap[1]!![0].toBoolean()
+
+        logs.append("Текущий узел: ${indexCurNode+1}\n")
+        if (isRelax){
+            logs.append("Произошла релаксация\n")
+        }
+        else{
+            logs.append("Не произошла релаксация\n")
+        }
+
+        logs.append("Лучший путь до узла: ${snapMap[indexCurNode+2]!![1].toInt()}\n")
+        logs.append("Предыдущий узел: ${snapMap[indexCurNode+2]!![2].toInt()}")
 
         return logs.toString()
     }

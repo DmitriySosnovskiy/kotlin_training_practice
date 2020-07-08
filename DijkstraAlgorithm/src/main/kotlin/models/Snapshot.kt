@@ -4,9 +4,10 @@ interface Memento{
     fun getStringVertex() :String
     fun getCurrentVertex():Int
     fun getAllInfo():String
+    fun getRelax():Boolean
 }
 
-class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int): Memento
+class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,private val relax:Boolean): Memento
 {
     private val vertexAsString = StringBuilder("")
 
@@ -24,8 +25,11 @@ class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int): Me
     override fun getCurrentVertex(): Int {
         return currentVertex
     }
+    override fun getRelax():Boolean {
+        return relax
+    }
     override fun getAllInfo(): String{
-        return ("($currentVertex), ${vertexAsString.toString()}")
+        return ("($currentVertex), ($relax), ${vertexAsString.toString()}")
     }
 
 }
