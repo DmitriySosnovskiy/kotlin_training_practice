@@ -505,10 +505,10 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     override fun displayDijkstraAlgorithmResult(result: String) {
         val resultTextArea = JTextArea(result)
+        resultTextArea.isEditable = false
         resultTextArea.lineWrap = true
         val scrollResultField = JScrollPane(resultTextArea)
-        scrollResultField.preferredSize = Dimension(400, 100)
-
+        scrollResultField.preferredSize = Dimension(400, 150)
         JOptionPane.showMessageDialog(null, scrollResultField, "Результат алгоритма", JOptionPane.PLAIN_MESSAGE)
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
