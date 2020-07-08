@@ -511,8 +511,11 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         JOptionPane.showMessageDialog(null, "\n$result")
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
-            " ", JOptionPane.YES_NO_OPTION)
+            "Подтвердите действие", JOptionPane.YES_NO_OPTION)
 
+        if(response == 0) {
+            presenter.onAlgorithmEndConfirmed()
+        }
     }
 
     override fun setAlgorithmRunningFlag(isAlgorithmRunning: Boolean) {

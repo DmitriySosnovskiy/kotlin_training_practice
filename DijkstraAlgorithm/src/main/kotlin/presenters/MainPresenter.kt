@@ -56,6 +56,12 @@ class MainPresenter(
         BroadcastPresenter.registerSubscriber(this)
     }
 
+    fun onAlgorithmEndConfirmed() {
+        nodes.forEach { it.reset() }
+        graphView.setAlgorithmRunningFlag(false)
+        graphView.update()
+    }
+
     override fun handleEvent(event: Event) {
         when (event) {
             is Event.OnStartAlgorithm -> {
@@ -63,7 +69,7 @@ class MainPresenter(
                 val node: Int? = requestStartNodeNumber()
 
                 if (node != null) {
-                //    startAlgorithm(node)
+                    startAlgorithm(node)
                     graphView.setAlgorithmRunningFlag(true)
                     graphView.update()
 
@@ -136,6 +142,7 @@ class MainPresenter(
             }
         }
     }
+
 
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
