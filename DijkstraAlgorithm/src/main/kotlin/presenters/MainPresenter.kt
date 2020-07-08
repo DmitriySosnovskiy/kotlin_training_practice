@@ -62,12 +62,10 @@ class MainPresenter(
         when (event) {
             is Event.OnStartAlgorithm -> {
 
-                val nodes: Pair<Int, Int>? = requestStartAndEndNodesNumbers()
+                val node: Int? = requestStartNodeNumber()
 
-                if (nodes != null) {
-                    val firstNode = nodes.first
-                    val secondNode = nodes.second
-                    startAlgorithm(firstNode, secondNode)
+                if (node != null) {
+                    startAlgorithm(node)
                     graphView.setAlgorithmRunningFlag(true)
                 }
                 else {
@@ -101,12 +99,12 @@ class MainPresenter(
         }
     }
 
-    private fun requestStartAndEndNodesNumbers() : Pair<Int, Int>? {
+    private fun requestStartNodeNumber() : Int? {
         val numbers = ArrayList<Int>()
         for(i in 1..nodes.size)
             numbers.add(i)
 
-        val optionsHolder = TwoNumbersRequestPane(numbers)
+        val optionsHolder = EndNodeRequestPane(numbers)
 
         val responseCode =
             JOptionPane.showConfirmDialog(null, optionsHolder, "Исходные данные", JOptionPane.OK_CANCEL_OPTION)
@@ -114,9 +112,8 @@ class MainPresenter(
         return when (responseCode) {
             //Нажата "Ок"
             0 -> {
-                if(numbers.size == 0)  null
-                else Pair(numbers[optionsHolder.startNodeNumber.selectedIndex],
-                    numbers[optionsHolder.endNodeNumber.selectedIndex])
+                if (numbers.size == 0) null
+                else numbers[optionsHolder.startNodeNumber.selectedIndex];
             }
 
             else -> {
