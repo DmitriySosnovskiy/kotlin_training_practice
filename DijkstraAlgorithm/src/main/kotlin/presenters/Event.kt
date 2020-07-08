@@ -11,4 +11,6 @@ sealed class Event {
     object NextStep : Event()
     object GenerateGraph : Event()
     object EndAlgorithm : Event()
+
+    class LogEvent(val logInfo: String) : Event()
 }

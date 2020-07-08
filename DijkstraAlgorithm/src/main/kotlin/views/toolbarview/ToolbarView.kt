@@ -22,6 +22,7 @@ class ToolbarView : JPanel(), ToolbarView {
     private val btn7 = JButton("Сгенерировать граф")
     private val btn8 = JButton("Закончить алгоритм")
 
+    private val logTextView = JTextArea()
 
     init {
         border = EmptyBorder(0, 10, 0,0)
@@ -30,7 +31,6 @@ class ToolbarView : JPanel(), ToolbarView {
         btn1.addActionListener { toolbarPresenter.chainToolbarEvent(Event.OnStartAlgorithm)}
         add(btn1)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
-
 
         btn2.addActionListener {
             val filePath: String? = toolbarPresenter.getFilePath()
@@ -83,14 +83,16 @@ class ToolbarView : JPanel(), ToolbarView {
         add(btn8)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        val logTextView = JTextField()
-        logTextView.isEditable = false
-        logTextView.background = Color.WHITE
-
         btn5.isEnabled = false
         btn6.isEnabled = false
 
-        add(logTextView)
+
+        logTextView.background = Color.WHITE
+        logTextView.isEditable = false
+        add(JScrollPane(logTextView))
+        logTextView.lineWrap = true
+        logTextView.font = UIConstants.logsOutputTextFont
+        logTextView.text += ">> ${toolbarPresenter.getCurrentDateString()}\nПрограмма запущена\n"
     }
 
     override fun lockElement(element: ToolbarViewElement) {
@@ -131,5 +133,9 @@ class ToolbarView : JPanel(), ToolbarView {
         }
 
         return null
+    }
+
+    override fun showLog(logMsg: String) {
+        logTextView.text += ">> $logMsg"
     }
 }

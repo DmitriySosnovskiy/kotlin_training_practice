@@ -65,8 +65,12 @@ class MainPresenter(
                 val node: Int? = requestStartNodeNumber()
 
                 if (node != null) {
-                    startAlgorithm(node)
+                //    startAlgorithm(node)
                     graphView.setAlgorithmRunningFlag(true)
+                    graphView.update()
+
+                    val logEvent = Event.LogEvent("Алгоритм запущен")
+                    BroadcastPresenter.generateEvent(logEvent)
                 }
                 else {
                     return
@@ -75,25 +79,38 @@ class MainPresenter(
 
             is Event.Clear -> {
                 nodes.clear()
+                dualEdges.clear()
                 edges.clear()
+                graphView.setAlgorithmRunningFlag(false)
                 graphView.update()
 
-
+                val logEvent = Event.LogEvent("Выполнена очистка сцены")
+                BroadcastPresenter.generateEvent(logEvent)
             }
 
             is Event.NextStep->{
+                val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
+                BroadcastPresenter.generateEvent(logEvent)
                 nextStep()
             }
             is Event.PreviousStep->{
+                val logEvent = Event.LogEvent("Выполнен переход на предыдущий шаг алгоритма")
+                BroadcastPresenter.generateEvent(logEvent)
                 previousStep()
             }
             is Event.DownloadGraph->{
-                downloadGraph((event as Event.DownloadGraph).fileName)
+                val logEvent = Event.LogEvent("Загрузка графа из файла ${event.fileName}")
+                BroadcastPresenter.generateEvent(logEvent)
+                downloadGraph(event.fileName)
             }
             is Event.SaveGraph->{
-                saveGraph((event as Event.SaveGraph).fileName)
+                val logEvent = Event.LogEvent("Сохранение графа в файл ${event.fileName}")
+                BroadcastPresenter.generateEvent(logEvent)
+                saveGraph(event.fileName)
             }
-            is Event.EndAlgorithm->{
+            is Event.EndAlgorithm-> {
+                val logEvent = Event.LogEvent("Окончание алгоритма")
+                BroadcastPresenter.generateEvent(logEvent)
                 finishAlgorithm()
             }
         }
@@ -113,7 +130,7 @@ class MainPresenter(
             //Нажата "Ок"
             0 -> {
                 if (numbers.size == 0) null
-                else numbers[optionsHolder.startNodeNumber.selectedIndex];
+                else numbers[optionsHolder.startNodeNumber.selectedIndex]
             }
 
             else -> {

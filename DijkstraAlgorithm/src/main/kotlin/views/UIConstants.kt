@@ -1,5 +1,6 @@
 package views
 
+import com.sun.org.apache.xpath.internal.functions.FunctionOneArg
 import java.awt.Color
 import java.awt.Font
 
@@ -27,4 +28,5 @@ object UIConstants {
     val nodeTextFont = Font("Segoe UI", Font.PLAIN, 40)
     val edgeWeightTextFont = Font("Segoe UI", Font.PLAIN, 20)
     val nodeSignTextFont = Font("Segoe UI", Font.PLAIN, 15)
+    val logsOutputTextFont = Font("Sans Serif", Font.PLAIN, 15)
 }
