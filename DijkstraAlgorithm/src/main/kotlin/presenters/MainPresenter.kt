@@ -250,7 +250,7 @@ class MainPresenter(
         if (!flag) {
             val logEvent = Event.LogEvent("Данная вершина не имеет ребер")
             BroadcastPresenter.generateEvent(logEvent)
-            graphView.setAlgorithmRunningFlag(false)
+            onAlgorithmEndConfirmed()
             for(n in nodes){
                 n.reset()
             }
