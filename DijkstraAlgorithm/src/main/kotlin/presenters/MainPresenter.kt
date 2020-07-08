@@ -84,6 +84,7 @@ class MainPresenter(
                     val logEvent = Event.LogEvent("Алгоритм запущен")
                     BroadcastPresenter.generateEvent(logEvent)
                     graphView.setAlgorithmRunningFlag(true)
+                    BroadcastPresenter.generateEvent(Event.AfterAlgorithmStarted)
                     startAlgorithm(node)
                     graphView.update()
                 }
