@@ -60,7 +60,6 @@ class Vertex(val name: Int) : Comparable<Vertex> {
 class Graph(private val edges: List<Edge>){
     // Хэш-таблица вершин (имя, объект), построенная из списка ребер
     private val graph = HashMap<Int, Vertex>(edges.size)
-
     private val snapshotKeeper: SnapshotKeeper = SnapshotKeeper()
 
     // Инициализация всех вершин и соседей

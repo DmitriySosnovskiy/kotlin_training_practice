@@ -45,6 +45,16 @@ class DijkstraAlgorithmController(){
         return snapshotKeeper.getSnapshot(snapshotKeeper.getSize()-1)
     }
 
+    fun isNextStepPossible():Boolean{
+        if(currentStep>=snapshotKeeper.getSize()-1) return false
+        return true
+    }
+    fun isPreviousStepPossible():Boolean{
+        if(currentStep<=0) return false
+        return true
+    }
+
+
 }
 
 
@@ -69,12 +79,11 @@ class MainPresenter(
                 val node: Int? = requestStartNodeNumber()
 
                 if (node != null) {
-                    startAlgorithm(node)
-                    graphView.setAlgorithmRunningFlag(true)
-                    graphView.update()
-
                     val logEvent = Event.LogEvent("Алгоритм запущен")
                     BroadcastPresenter.generateEvent(logEvent)
+                    graphView.setAlgorithmRunningFlag(true)
+                    startAlgorithm(node)
+                    graphView.update()
                 }
                 else {
                     return
@@ -93,13 +102,14 @@ class MainPresenter(
             }
 
             is Event.NextStep->{
-                //val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
-                //BroadcastPresenter.generateEvent(logEvent)
+               //val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
+               // BroadcastPresenter.generateEvent(logEvent)
                 nextStep()
             }
+
             is Event.PreviousStep->{
-                val logEvent = Event.LogEvent("Выполнен переход на предыдущий шаг алгоритма")
-                BroadcastPresenter.generateEvent(logEvent)
+               // val logEvent = Event.LogEvent("Выполнен переход на предыдущий шаг алгоритма")
+               // BroadcastPresenter.generateEvent(logEvent)
                 previousStep()
             }
             is Event.DownloadGraph->{
@@ -224,6 +234,29 @@ class MainPresenter(
 
     fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
 
+
+        //проверка на существование вершины в массиве ребер
+
+        var flag = false
+
+        for(e in edges){
+            if (nodes.indexOf(e.sourceNode) == startNode || nodes.indexOf(e.endNode) == startNode){
+                flag = true
+                break
+            }
+        }
+        if (!flag) {
+            val logEvent = Event.LogEvent("Данная вершина не имеет ребер")
+            BroadcastPresenter.generateEvent(logEvent)
+            graphView.setAlgorithmRunningFlag(false)
+            for(n in nodes){
+                n.reset()
+            }
+            graphView.update()
+            return
+        }
+
+
         val gr:ArrayList<Edge> = ArrayList<Edge>()
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
@@ -279,6 +312,16 @@ class MainPresenter(
 
 
     fun nextStep(){
+
+        if (!dijkstraAlgorithmController.isNextStepPossible()){
+            val logEvent = Event.LogEvent("Следующий шаг невозможен")
+            BroadcastPresenter.generateEvent(logEvent)
+            return
+        }
+
+        val event = Event.LogEvent("Выполнен следующий шаг")
+        BroadcastPresenter.generateEvent(event)
+
         for(n in nodes){
             n.reset()
         }
@@ -294,9 +337,20 @@ class MainPresenter(
     }
 
     fun previousStep(){
+
+        if (!dijkstraAlgorithmController.isPreviousStepPossible()){
+            val logEvent = Event.LogEvent("Предыдущий шаг невозможен")
+            BroadcastPresenter.generateEvent(logEvent)
+            return
+        }
+
+        val event = Event.LogEvent("Выполнен предыдущий шаг")
+        BroadcastPresenter.generateEvent(event)
+
         for(n in nodes){
             n.reset()
         }
+
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()?:return)
         updateAllNodes(snapMap)
 
@@ -316,6 +370,9 @@ class MainPresenter(
         graphView.displayDijkstraAlgorithmResult(dijkstraAlgorithmController.answer)
         graphView.update()
     }
+
+
+
 
 
     private fun convertEdgeInfoinArrayList(info_ :String) : ArrayList<List<String>>?{
