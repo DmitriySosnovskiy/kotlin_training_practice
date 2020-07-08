@@ -31,7 +31,7 @@ class Vertex(val name: Int) : Comparable<Vertex> {
         var endString: String = ""
         endString = when(previous){
             this -> (name+1).toString()
-            null -> "До вершины ${name+1} невозможно добраться"
+            null -> "не существует"
             else -> {
                 val str: String = previous!!.printPath()
                 "$str ➔ ${name+1}($dist)"
@@ -94,7 +94,7 @@ class Graph(private val edges: List<Edge>){
 
     fun dijkstra(startName: Int) {
         if (!graph.containsKey(startName)) {
-            println("Граф не содержит стартовую вершину '${startName}'")
+            println("Граф не содержит стартовую вершину '${startName+1}'")
             return
         }
 
@@ -138,14 +138,15 @@ class Graph(private val edges: List<Edge>){
                 // то меняем в treeSet расстояние до вершины
                 if (alternateDist < currentNgb.dist) {
 
-                    // Делаем здесь снимки
+
                     treeSet.remove(currentNgb)
                     currentNgb.dist = alternateDist
                     currentNgb.previous = currV
                     treeSet.add(currentNgb)
                     this.makeSnapshot(currentNgb.name)
-                    // Надо как-то залочить снимки?
+
                 }
+
             }
         }
     }
@@ -155,7 +156,7 @@ class Graph(private val edges: List<Edge>){
         var strEnd: String = ""
 
         if (!graph.containsKey(endName))
-            return "Граф не содержит конечную вершину '${endName}'"
+            return "Граф не содержит конечную вершину '${endName+1}'"
 
         /*if (showAllPaths)
             strEnd = printAllPaths()
@@ -200,15 +201,17 @@ class Graph(private val edges: List<Edge>){
         return snapshotKeeper
     }
 
-    fun getPath(endVertex: Int, startVertex: Int): String{
+    fun getPath(startVertex: Int): String{
         val arr: IntArray = IntArray(graph.size) {it+1}
-        var ansString: String = "Расстояние от вершины $startVertex\n--------------------------------------\n"
+        var ansString: String = "|  Расстояние от вершины '$startVertex'\n-------------------------------------------\n"
 
         arr.forEach {
-            if (it != startVertex)
-                ansString += "        До вершины " + it + ":     " +
-                             graph[it-1]!!.dist.toString() + "\n                Путь: " +
-                             printPath(it-1, startVertex) + "\n--------------------------------------\n"
+            if (it != startVertex) {
+                ansString += "|  До вершины '$it':     "
+                ansString += if (graph[it - 1]!!.dist == Int.MAX_VALUE) "-" else graph[it - 1]!!.dist.toString()
+                ansString += "    |    Путь:    " + printPath(it - 1, startVertex) +
+                             "  \n----------------------------------------------------------------------------------\n"
+            }
         }
 
         return ansString

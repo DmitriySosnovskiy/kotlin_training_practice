@@ -20,12 +20,10 @@ interface GraphView {
 class DijkstraAlgorithmController(){
     var snapshotKeeper : SnapshotKeeper = SnapshotKeeper()
     var startNode : Int = -1
-    var endNode : Int = -1
     var currentStep : Int = 0
     var answer:String = ""
-    fun initStart(startNode:Int, endNode:Int, snapshots : SnapshotKeeper, answer:String){
+    fun initStart(startNode:Int,snapshots : SnapshotKeeper, answer:String){
         this.startNode = startNode-1
-        this.endNode = endNode-1
         this.snapshotKeeper = snapshots
         this.answer = answer
         currentStep = -1
@@ -151,8 +149,8 @@ class MainPresenter(
     }
 
     fun addEdge(new:UIEdge){
-        if (new.weight.toInt()<=0)
-            return
+
+
         for (e in edges) {
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
@@ -217,7 +215,7 @@ class MainPresenter(
         graphView.update()
     }
 
-    fun startAlgorithm(startNode:Int, endNode:Int){ //где хранить конечный и начальный узел
+    fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
 
         val gr:ArrayList<Edge> = ArrayList<Edge>()
         for (e in edges){
@@ -230,9 +228,7 @@ class MainPresenter(
 
         val graph = Graph(gr)
         graph.dijkstra(startNode-1) //прогнали алгоритм
-        dijkstraAlgorithmController.initStart(startNode,endNode,graph.getSnapshotHistory(),graph.getPath(endNode-1, startNode)) // здесь принимаю ответ
-
-
+        dijkstraAlgorithmController.initStart(startNode,graph.getSnapshotHistory(),graph.getPath(startNode)) // здесь принимаю ответ
     }
 
     private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
@@ -284,21 +280,39 @@ class MainPresenter(
         graphView.update()
     }
 
-    private fun checkStringAndGetInfoList(info_:String) : ArrayList<List<String>>?{
+
+    private fun convertEdgeInfoinArrayList(info_ :String) : ArrayList<List<String>>?{
         val string = info_.replace(" ","")
         val reg = (Regex("^(\\(\\d+,\\d+,\\d+\\),)*\\(\\d+,\\d+,\\d+\\)\$"))
-
         if (!string.matches(reg)) return null
 
         val match = Regex("(\\d+,\\d+,\\d+)").findAll(string)
 
         val list = ArrayList<List<String>>()
-        for (e in match){
+        for(e in match){
             val temp = e.destructured.toList().toString()
             list.add(temp.substring(1,temp.length-1).split(","))
         }
         return list
     }
+
+    private fun convertNodeInfoinArrayList(info_ :String) : ArrayList<List<String>>?{
+        val string = info_.replace(" ","")
+        val reg = (Regex("^(\\(\\d+,\\d+\\),)*\\(\\d+,\\d+\\)\$"))
+        if (!string.matches(reg)) return null
+
+        val match = Regex("(\\d+,\\d+)").findAll(string)
+
+        val list = ArrayList<List<String>>()
+        for(e in match){
+            val temp = e.destructured.toList().toString()
+            list.add(temp.substring(1,temp.length-1).split(","))
+        }
+        return list
+    }
+
+
+
 
     fun downloadGraph(fileName:String){
         val inputStream: InputStream = File(fileName).inputStream()
@@ -308,12 +322,12 @@ class MainPresenter(
 
         if(allInfo.size !in 1..2) return  //если в файле больше, чем нужно строк
 
-        val nodeInfoList = (checkStringAndGetInfoList(allInfo[0].replace(" ",""))) ?: return //ошибка
+        val nodeInfoList = (convertNodeInfoinArrayList(allInfo[0].replace(" ",""))) ?: return //ошибка
 
         var edgeInfoList : ArrayList<List<String>>? = null
 
         if (allInfo.size==2) //нет информации о ребрах
-            edgeInfoList = (checkStringAndGetInfoList(allInfo[1].replace(" ",""))) ?: return //ошибка
+            edgeInfoList = (convertEdgeInfoinArrayList(allInfo[1].replace(" ",""))) ?: return //ошибка
 
         //инициализируем UI граф
 
@@ -322,7 +336,7 @@ class MainPresenter(
         dualEdges.clear()
         //инициализируем вершины
         for (n in nodeInfoList){
-            addNode(UINode(Coordinate(n[1].toInt(),n[2].toInt())))
+            addNode(UINode(Coordinate(n[0].toInt(),n[1].toInt())))
         }
         if(edgeInfoList!=null) //если есть информация о ребрах
             for (e in edgeInfoList) {
@@ -332,11 +346,12 @@ class MainPresenter(
         graphView.update()
 
     }
+
     fun saveGraph(fileName:String){
         //создаем граф из строки
         val graphAsString = StringBuilder("")
         for (n in nodes)
-            graphAsString.append("(${nodes.indexOf(n)}, ${n.toString()}), ")
+            graphAsString.append("(${n.toString()}), ")
 
         if(graphAsString.isEmpty())
             return  //нет узлов
