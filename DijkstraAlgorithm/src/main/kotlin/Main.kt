@@ -7,7 +7,7 @@ class Main {
         @JvmStatic
         fun main(args: Array<String>) {
             val frame = JFrame()
-            frame.size = Dimension(1000, 600)
+            frame.size = Dimension(1200, 800)
 
             frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
 

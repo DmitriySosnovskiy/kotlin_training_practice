@@ -211,9 +211,11 @@ class Graph(private val edges: List<Edge>){
         arr.forEach {
             if (it != startVertex) {
                 ansString += "|  До вершины '$it':     "
-                ansString += if (graph[it - 1]!!.dist == Int.MAX_VALUE) "-" else graph[it - 1]!!.dist.toString()
-                ansString += "    |    Путь:    " + printPath(it - 1, startVertex) +
-                             "  \n----------------------------------------------------------------------------------\n"
+                if (graph.containsKey(it-1)) {
+                    ansString += if (graph[it - 1]!!.dist == Int.MAX_VALUE) "-" else graph[it - 1]!!.dist.toString()
+                    ansString += "    |    Путь:    " + printPath(it - 1, startVertex) +
+                            "  \n----------------------------------------------------------------------------------\n"
+                }
             }
         }
 
