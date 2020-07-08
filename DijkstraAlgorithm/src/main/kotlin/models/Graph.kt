@@ -151,7 +151,7 @@ class Graph(private val edges: List<Edge>){
     }
 
     // Печатает путь от начальной вершины до заданной конечной
-    fun printPath(endName: Int, startName: Int): String {
+    private fun printPath(endName: Int, startName: Int): String {
         var strEnd: String = ""
 
         if (!graph.containsKey(endName))
@@ -162,7 +162,7 @@ class Graph(private val edges: List<Edge>){
         else*/
             strEnd = graph[endName]!!.printPath()
 
-        return "Кратчайший путь из $startName в ${endName+1}:\n" + graph[endName]!!.dist.toString() + "\n" + strEnd
+        return /*"Кратчайший путь из $startName в ${endName+1}:\n" + graph[endName]!!.dist.toString() + "\n" + */strEnd
     }
 
     // Печатает путь от начальной вершины до каждой другой
@@ -201,7 +201,17 @@ class Graph(private val edges: List<Edge>){
     }
 
     fun getPath(endVertex: Int, startVertex: Int): String{
-        return printPath(endVertex, startVertex)
+        val arr: IntArray = IntArray(graph.size) {it+1}
+        var ansString: String = "Расстояние от вершины $startVertex\n--------------------------------------\n"
+
+        arr.forEach {
+            if (it != startVertex)
+                ansString += "        До вершины " + it + ":     " +
+                             graph[it-1]!!.dist.toString() + "\n                Путь: " +
+                             printPath(it-1, startVertex) + "\n--------------------------------------\n"
+        }
+
+        return ansString
     }
 
     fun getEdgesAsString(): String {
