@@ -9,11 +9,7 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.geom.Ellipse2D
 import java.lang.NumberFormatException
-import javax.swing.JMenuItem
-import javax.swing.JPanel
-import javax.swing.JPopupMenu
-import javax.swing.SwingUtilities
-import javax.swing.JOptionPane
+import javax.swing.*
 
 interface GraphViewObserver {
     fun onSheetDragged(offsetX: Int, offsetY: Int)
@@ -508,7 +504,12 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     }
 
     override fun displayDijkstraAlgorithmResult(result: String) {
-        JOptionPane.showMessageDialog(null, "\n$result")
+        val resultTextArea = JTextArea(result)
+        resultTextArea.lineWrap = true
+        val scrollResultField = JScrollPane(resultTextArea)
+        scrollResultField.preferredSize = Dimension(400, 100)
+
+        JOptionPane.showMessageDialog(null, scrollResultField, "Результат алгоритма", JOptionPane.PLAIN_MESSAGE)
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
             "Подтвердите действие", JOptionPane.YES_NO_OPTION)
