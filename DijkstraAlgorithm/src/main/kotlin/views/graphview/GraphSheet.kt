@@ -509,7 +509,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         val scrollResultField = JScrollPane(resultTextArea)
         scrollResultField.preferredSize = Dimension(400, 100)
 
-        JOptionPane.showMessageDialog(null, scrollResultField, "Результат алгоритма", JOptionPane.OK_OPTION)
+        JOptionPane.showMessageDialog(null, scrollResultField, "Результат алгоритма", JOptionPane.PLAIN_MESSAGE)
 
         val response = JOptionPane.showConfirmDialog(null, "Закончить алгоритм?",
             "Подтвердите действие", JOptionPane.YES_NO_OPTION)
