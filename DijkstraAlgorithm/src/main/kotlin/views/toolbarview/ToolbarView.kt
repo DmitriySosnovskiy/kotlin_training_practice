@@ -83,8 +83,8 @@ class ToolbarView : JPanel(), ToolbarView {
         add(btn8)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        btn5.isEnabled = false
-        btn6.isEnabled = false
+        btn5.isEnabled = true
+        btn6.isEnabled = true
 
 
         logTextView.background = Color.WHITE

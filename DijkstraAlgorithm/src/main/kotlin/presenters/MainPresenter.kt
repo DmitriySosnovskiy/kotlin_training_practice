@@ -63,7 +63,7 @@ class MainPresenter(
                 val node: Int? = requestStartNodeNumber()
 
                 if (node != null) {
-                //    startAlgorithm(node)
+                    startAlgorithm(node)
                     graphView.setAlgorithmRunningFlag(true)
                     graphView.update()
 
@@ -87,8 +87,8 @@ class MainPresenter(
             }
 
             is Event.NextStep->{
-                val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
-                BroadcastPresenter.generateEvent(logEvent)
+                //val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
+                //BroadcastPresenter.generateEvent(logEvent)
                 nextStep()
             }
             is Event.PreviousStep->{
@@ -249,6 +249,17 @@ class MainPresenter(
             nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
         }
     }
+    private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
+
+        val logs = StringBuilder("")
+        val indexCurNode = snapMap[0]!![0].toInt()
+        logs.append("Текущий узел: ${indexCurNode}\n")
+        logs.append("Лучший путь до узла: ${snapMap[indexCurNode+1]!![1].toInt()}\n")
+        logs.append("Узел, из которого пришли, чтобы получился лучший путь: ${snapMap[indexCurNode+1]!![2].toInt()}")
+
+        return logs.toString()
+    }
+
 
     fun nextStep(){
         for(n in nodes){
@@ -257,6 +268,10 @@ class MainPresenter(
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()?:return)
         //обновляем состояния узлов
         updateAllNodes(snapMap)
+
+        val logEvent = Event.LogEvent(getLogs(snapMap))
+        BroadcastPresenter.generateEvent(logEvent)
+
         //перерисовываем
         graphView.update()
     }
@@ -267,6 +282,11 @@ class MainPresenter(
         }
         val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()?:return)
         updateAllNodes(snapMap)
+
+
+        val logEvent = Event.LogEvent(getLogs(snapMap))
+        BroadcastPresenter.generateEvent(logEvent)
+
         graphView.update()
 
     }
