@@ -60,6 +60,8 @@ class MainPresenter(
         nodes.forEach { it.reset() }
         graphView.setAlgorithmRunningFlag(false)
         graphView.update()
+
+        BroadcastPresenter.generateEvent(Event.AfterAlgorithmEnded)
     }
 
     override fun handleEvent(event: Event) {

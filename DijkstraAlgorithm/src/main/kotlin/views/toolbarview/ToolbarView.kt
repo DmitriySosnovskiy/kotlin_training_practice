@@ -83,8 +83,9 @@ class ToolbarView : JPanel(), ToolbarView {
         add(btn8)
         add(Box.createVerticalStrut(UIConstants.spaceBetweenButtonsInToolbar))
 
-        btn5.isEnabled = true
-        btn6.isEnabled = true
+        btn5.isEnabled = false
+        btn6.isEnabled = false
+        btn8.isEnabled = false
 
 
         logTextView.background = Color.WHITE
@@ -104,6 +105,7 @@ class ToolbarView : JPanel(), ToolbarView {
             ToolbarViewElement.NEXT_STEP -> btn5.isEnabled = false
             ToolbarViewElement.PREVIOUS_STEP -> btn6.isEnabled = false
             ToolbarViewElement.GENERATE -> btn7.isEnabled = false
+            ToolbarViewElement.END_ALGORITHM -> btn8.isEnabled = false
         }
     }
 
@@ -116,6 +118,7 @@ class ToolbarView : JPanel(), ToolbarView {
             ToolbarViewElement.NEXT_STEP -> btn5.isEnabled = true
             ToolbarViewElement.PREVIOUS_STEP -> btn6.isEnabled = true
             ToolbarViewElement.GENERATE -> btn7.isEnabled = true
+            ToolbarViewElement.END_ALGORITHM -> btn8.isEnabled = true
         }
     }
 

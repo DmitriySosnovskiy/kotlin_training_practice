@@ -10,7 +10,8 @@ enum class ToolbarViewElement {
     CLEAR,
     NEXT_STEP,
     PREVIOUS_STEP,
-    GENERATE
+    GENERATE,
+    END_ALGORITHM
 }
 
 interface ToolbarView {
@@ -33,6 +34,13 @@ class ToolbarPresenter(private val toolbarView: ToolbarView) : EventSubscriber {
             is Event.AfterAlgorithmStarted -> {
                 toolbarView.unlockElement(ToolbarViewElement.NEXT_STEP)
                 toolbarView.unlockElement(ToolbarViewElement.PREVIOUS_STEP)
+                toolbarView.unlockElement(ToolbarViewElement.END_ALGORITHM)
+            }
+
+            is Event.AfterAlgorithmEnded -> {
+                toolbarView.lockElement(ToolbarViewElement.NEXT_STEP)
+                toolbarView.lockElement(ToolbarViewElement.PREVIOUS_STEP)
+                toolbarView.lockElement(ToolbarViewElement.END_ALGORITHM)
             }
 
             is Event.LogEvent -> {
