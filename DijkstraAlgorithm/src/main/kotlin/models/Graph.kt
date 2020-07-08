@@ -31,7 +31,7 @@ class Vertex(val name: Int) : Comparable<Vertex> {
         var endString: String = ""
         endString = when(previous){
             this -> (name+1).toString()
-            null -> "До вершины ${name+1} невозможно добраться"
+            null -> "не существует"
             else -> {
                 val str: String = previous!!.printPath()
                 "$str ➔ ${name+1}($dist)"
@@ -203,13 +203,15 @@ class Graph(private val edges: List<Edge>){
 
     fun getPath(startVertex: Int): String{
         val arr: IntArray = IntArray(graph.size) {it+1}
-        var ansString: String = "Расстояние от вершины $startVertex\n--------------------------------------\n"
+        var ansString: String = "|  Расстояние от вершины '$startVertex'\n-------------------------------------------\n"
 
         arr.forEach {
-            if (it != startVertex)
-                ansString += "        До вершины " + it + ":     " +
-                             graph[it-1]!!.dist.toString() + "\n                Путь: " +
-                             printPath(it-1, startVertex) + "\n--------------------------------------\n"
+            if (it != startVertex) {
+                ansString += "|  До вершины '$it':     "
+                ansString += if (graph[it - 1]!!.dist == Int.MAX_VALUE) "-" else graph[it - 1]!!.dist.toString()
+                ansString += "    |    Путь:    " + printPath(it - 1, startVertex) +
+                             "  \n----------------------------------------------------------------------------------\n"
+            }
         }
 
         return ansString
