@@ -24,7 +24,8 @@ class MainPresenter(
     }
 
     fun onAlgorithmEndConfirmed() {
-        nodes.forEach { it.reset() }
+        resetAll()
+       // nodes.forEach { it.reset() }
         graphView.setAlgorithmRunningFlag(false)
         graphView.update()
         BroadcastPresenter.generateEvent(Event.AfterAlgorithmEnded)
@@ -94,6 +95,15 @@ class MainPresenter(
             else -> {
                 null
             }
+        }
+    }
+
+    private fun resetAll(){
+        for(n in nodes){
+            n.reset()
+        }
+        for (e in edges){
+            e.reset()
         }
     }
 
@@ -207,12 +217,29 @@ class MainPresenter(
     private fun updateAllNodes(snapMap:HashMap<Int,List<String>>){
         // snapMap[0][0] - текущий узел
         // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
-        nodes[snapMap[0]!![0].toInt()].isActive = true
 
+        val curNode = snapMap[0]!![0].toInt()
+        val prevNode = snapMap[curNode+2]!![2].toInt()
+
+        nodes[curNode].isActive = true
         for (i in 2 until snapMap.size){
             nodes[snapMap[i]!![0].toInt()].bestWay = snapMap[i]!![1]
             nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
         }
+
+        //выделяем ребро
+        for (e in edges){
+            if (nodes.indexOf(e.endNode) == curNode && nodes.indexOf(e.sourceNode)==prevNode){
+                e.isActive = true
+            }
+        }
+        for (e in dualEdges){
+            if (nodes.indexOf(e.edge1.endNode) == curNode && nodes.indexOf(e.edge1.sourceNode)==prevNode)
+                e.edge1.isActive = true
+            if (nodes.indexOf(e.edge2.endNode) == curNode && nodes.indexOf(e.edge2.sourceNode)==prevNode)
+                e.edge2.isActive = true
+        }
+
     }
     private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
         val logs = StringBuilder("")
@@ -246,9 +273,7 @@ class MainPresenter(
         }
         printLogs("Выполнен следующий шаг")
 
-        for(n in nodes){
-            n.reset()
-        }
+        resetAll()
 
         val snapMap = dijkstraAlgorithmController.getNextStep()?.toMap()
 
@@ -271,9 +296,7 @@ class MainPresenter(
         }
         printLogs("Выполнен предыдущий шаг")
 
-        for(n in nodes){
-            n.reset()
-        }
+        resetAll()
 
         val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap()
 
@@ -292,9 +315,8 @@ class MainPresenter(
     }
 
     private fun finishAlgorithm(){
-        for(n in nodes){
-            n.reset()
-        }
+        resetAll()
+
         val snapMap = dijkstraAlgorithmController.getLast()?.toMap()
 
         if (snapMap==null){

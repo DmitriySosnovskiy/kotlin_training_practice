@@ -8,7 +8,10 @@ class UIEdge(
     var weight: String
 ) {
     val width = UIConstants.edgeWidth
-
+    var isActive = false
+    fun reset() {
+        isActive = false
+    }
 
 
 }
