@@ -55,7 +55,6 @@ class MainPresenter(
                 graphView.update()
                 printLogs("Выполнена очистка сцены")
             }
-
             is Event.NextStep->{
                 nextStep()
             }
@@ -152,7 +151,6 @@ class MainPresenter(
     }
 
     fun deleteNode(deleted:UINode){
-
         val removableEdges = ArrayList<UIEdge>()
         for (e in edges){
             if (e.sourceNode == deleted || e.endNode == deleted)
@@ -217,13 +215,15 @@ class MainPresenter(
         }
     }
     private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
-
         val logs = StringBuilder("")
         val indexCurNode = snapMap[0]!![0].toInt()
         val isRelax = snapMap[1]!![0].toBoolean()
 
+        if (snapMap[indexCurNode+2]!![2].toInt() == indexCurNode+1){
+            logs.append("Исходная вершина")
+            return logs.toString()
+        }
         logs.append("Ребро: (${snapMap[indexCurNode+2]!![2].toInt()},${indexCurNode+1})\n")
-
         if (isRelax){
             logs.append("Произошла релаксация\n")
         }
@@ -241,20 +241,21 @@ class MainPresenter(
 
     private fun nextStep(){
         if (!dijkstraAlgorithmController.isNextStepPossible()){
-            val logEvent = Event.LogEvent("Следующий шаг невозможен")
-            BroadcastPresenter.generateEvent(logEvent)
+            printLogs("Следующий шаг невозможен, текущий шаг последний")
             return
         }
-
-        val event = Event.LogEvent("Выполнен следующий шаг")
-        BroadcastPresenter.generateEvent(event)
+        printLogs("Выполнен следующий шаг")
 
         for(n in nodes){
             n.reset()
         }
 
-        val snapMap = dijkstraAlgorithmController.getNextStep()?.toMap() ?:return
+        val snapMap = dijkstraAlgorithmController.getNextStep()?.toMap()
 
+        if (snapMap==null){
+            printLogs("Ошибка со снимками")
+            return
+        }
         updateAllNodes(snapMap)
 
         val logEvent = Event.LogEvent(getLogs(snapMap))
@@ -265,19 +266,22 @@ class MainPresenter(
 
     private fun previousStep(){
         if (!dijkstraAlgorithmController.isPreviousStepPossible()){
-            val logEvent = Event.LogEvent("Предыдущий шаг невозможен")
-            BroadcastPresenter.generateEvent(logEvent)
+            printLogs("Предыдущий шаг невозможен, текущий шаг первый")
             return
         }
-
-        val event = Event.LogEvent("Выполнен предыдущий шаг")
-        BroadcastPresenter.generateEvent(event)
+        printLogs("Выполнен предыдущий шаг")
 
         for(n in nodes){
             n.reset()
         }
 
-        val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap() ?:return
+        val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap()
+
+        if (snapMap==null){
+            printLogs("Ошибка со снимками")
+            return
+        }
+
         updateAllNodes(snapMap)
 
         val logEvent = Event.LogEvent(getLogs(snapMap))
@@ -291,15 +295,28 @@ class MainPresenter(
         for(n in nodes){
             n.reset()
         }
-        val snapMap = dijkstraAlgorithmController.getLast()?.toMap() ?:return
+        val snapMap = dijkstraAlgorithmController.getLast()?.toMap()
+
+        if (snapMap==null){
+            printLogs("Ошибка со снимками")
+            return
+        }
+
         updateAllNodes(snapMap)
         graphView.displayDijkstraAlgorithmResult(dijkstraAlgorithmController.answer)
+
+        printLogs("Результыт работы:\n${dijkstraAlgorithmController.answer}")
+
         graphView.update()
     }
 
     private fun downloadGraph(fileName:String) {
         val fileHandler = GraphFileHandler(fileName)
-        val graphInfo = fileHandler.downloadGraphInfo() ?: return //ошибка в чтении файла
+        val graphInfo = fileHandler.downloadGraphInfo()
+        if (graphInfo==null){
+            printLogs("Ошибка в чтении файла, неверный формат")
+            return
+        }
 
         nodes.clear()
         edges.clear()
@@ -323,10 +340,9 @@ class MainPresenter(
         val graphAsString = StringBuilder("")
         for (n in nodes)
             graphAsString.append("($n), ")
-
-        if(graphAsString.isEmpty())
-            return  ""//нет узлов
-
+        if(graphAsString.isEmpty()){
+            return ""
+        }
         graphAsString.delete(graphAsString.length - 2, graphAsString.length).append("")
         graphAsString.append("\n")
         for (e in edges)
@@ -343,6 +359,7 @@ class MainPresenter(
     private fun saveGraph(fileName:String){
         val graphAsString = this.toString()
         if (graphAsString.isEmpty()){
+            printLogs("Ошибка в чтении файла, неверный формат")
             return
         }
         //Записываем в файл
