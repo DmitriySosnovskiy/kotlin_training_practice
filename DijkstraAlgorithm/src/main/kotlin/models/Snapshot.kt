@@ -1,13 +1,7 @@
 package models
 
-interface Memento{
-    fun getStringVertex() :String
-    fun getCurrentVertex():Int
-    fun getAllInfo():String
-    fun getRelax():Boolean
-}
 
-class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,private val relax:Boolean): Memento
+class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,private val relax:Boolean)
 {
     private val vertexAsString = StringBuilder("")
 
@@ -18,23 +12,34 @@ class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,priv
         vertexAsString.delete(vertexAsString.length - 2, vertexAsString.length).append("")
     }
 
-    override fun getStringVertex(): String {
+    fun getStringVertex(): String {
         return vertexAsString.toString()
     }
 
-    override fun getCurrentVertex(): Int {
+    fun getCurrentVertex(): Int {
         return currentVertex
     }
-    override fun getRelax():Boolean {
+
+    fun getRelax():Boolean {
         return relax
     }
-    override fun getAllInfo(): String{
+
+    fun getAllInfo(): String{
         return ("($currentVertex), ($relax), ${vertexAsString.toString()}")
+    }
+
+    fun toMap():HashMap<Int,List<String>>{
+        val list = this.getAllInfo().substring(1,this.getAllInfo().length-1).split("), (")
+        val double = HashMap<Int,List<String>>(list.size)
+        for (e in list){
+            double[list.indexOf(e)] = e.split(",")
+        }
+        return double
     }
 
 }
 
-class SnapshotKeeper(){
+class SnapshotKeeper{
     private var snapshotArray = emptyArray<Snapshot>()
     private var arraySize :Int = 0
     fun putSnapshot(new:Snapshot){

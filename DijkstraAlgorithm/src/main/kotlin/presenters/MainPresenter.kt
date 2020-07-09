@@ -2,14 +2,8 @@ package presenters
 
 import models.Edge
 import models.Graph
-import models.SnapshotKeeper
-import models.Snapshot
 import views.graphview.*
 import javax.swing.JOptionPane
-import java.io.File
-import java.io.InputStream
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 
 interface GraphView {
     fun update()
@@ -17,53 +11,16 @@ interface GraphView {
     fun setAlgorithmRunningFlag(isAlgorithmRunning: Boolean)
 }
 
-class DijkstraAlgorithmController(){
-    var snapshotKeeper : SnapshotKeeper = SnapshotKeeper()
-    var startNode : Int = -1
-    var currentStep : Int = 0
-    var answer:String = ""
-    fun initStart(startNode:Int,snapshots : SnapshotKeeper, answer:String){
-        this.startNode = startNode-1
-        this.snapshotKeeper = snapshots
-        this.answer = answer
-        currentStep = -1
-    }
-
-    fun getNextStep():Snapshot?{
-        if (currentStep>=snapshotKeeper.getSize()-1) return null
-        currentStep++
-        return snapshotKeeper.getSnapshot(currentStep)
-    }
-
-    fun getPreviousStep():Snapshot?{
-        if (currentStep<=0) return null
-        currentStep--
-        return snapshotKeeper.getSnapshot(currentStep)
-    }
-
-    fun getLast():Snapshot?{
-        return snapshotKeeper.getSnapshot(snapshotKeeper.getSize()-1)
-    }
-
-    fun isNextStepPossible():Boolean{
-        if(currentStep>=snapshotKeeper.getSize()-1) return false
-        return true
-    }
-    fun isPreviousStepPossible():Boolean{
-        if(currentStep<=0) return false
-        return true
-    }
-
-
-}
-
-
 class MainPresenter(
     private val graphView: GraphView
 ) : EventSubscriber {
 
     init {
         BroadcastPresenter.registerSubscriber(this)
+    }
+    private fun printLogs(log:String){
+        val logEvent = Event.LogEvent(log)
+        BroadcastPresenter.generateEvent(logEvent)
     }
 
     fun onAlgorithmEndConfirmed() {
@@ -80,8 +37,7 @@ class MainPresenter(
                 val node: Int? = requestStartNodeNumber()
 
                 if (node != null) {
-                    val logEvent = Event.LogEvent("Алгоритм запущен")
-                    BroadcastPresenter.generateEvent(logEvent)
+                    printLogs("Алгоритм запущен")
                     graphView.setAlgorithmRunningFlag(true)
                     BroadcastPresenter.generateEvent(Event.AfterAlgorithmStarted)
                     startAlgorithm(node)
@@ -91,42 +47,32 @@ class MainPresenter(
                     return
                 }
             }
-
             is Event.Clear -> {
                 nodes.clear()
                 dualEdges.clear()
                 edges.clear()
                 graphView.setAlgorithmRunningFlag(false)
                 graphView.update()
-
-                val logEvent = Event.LogEvent("Выполнена очистка сцены")
-                BroadcastPresenter.generateEvent(logEvent)
+                printLogs("Выполнена очистка сцены")
             }
 
             is Event.NextStep->{
-               //val logEvent = Event.LogEvent("Выполнен переход на следующий шаг алгоритма")
-               // BroadcastPresenter.generateEvent(logEvent)
                 nextStep()
             }
 
             is Event.PreviousStep->{
-               // val logEvent = Event.LogEvent("Выполнен переход на предыдущий шаг алгоритма")
-               // BroadcastPresenter.generateEvent(logEvent)
                 previousStep()
             }
             is Event.DownloadGraph->{
-                val logEvent = Event.LogEvent("Загрузка графа из файла ${event.fileName}")
-                BroadcastPresenter.generateEvent(logEvent)
+                printLogs("Загрузка графа из файла ${event.fileName}")
                 downloadGraph(event.fileName)
             }
             is Event.SaveGraph->{
-                val logEvent = Event.LogEvent("Сохранение графа в файл ${event.fileName}")
-                BroadcastPresenter.generateEvent(logEvent)
+                printLogs("Сохранение графа в файл ${event.fileName}")
                 saveGraph(event.fileName)
             }
             is Event.EndAlgorithm-> {
-                val logEvent = Event.LogEvent("Окончание алгоритма")
-                BroadcastPresenter.generateEvent(logEvent)
+                printLogs("Окончание алгоритма")
                 finishAlgorithm()
             }
         }
@@ -136,9 +82,7 @@ class MainPresenter(
         val numbers = ArrayList<Int>()
         for(i in 1..nodes.size)
             numbers.add(i)
-
         val optionsHolder = EndNodeRequestPane(numbers)
-
         val responseCode =
             JOptionPane.showConfirmDialog(null, optionsHolder, "Исходные данные", JOptionPane.OK_CANCEL_OPTION)
 
@@ -148,32 +92,23 @@ class MainPresenter(
                 if (numbers.size == 0) null
                 else numbers[optionsHolder.startNodeNumber.selectedIndex]
             }
-
             else -> {
                 null
             }
         }
     }
 
-
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
     val dualEdges = ArrayList<UIDualEdge>()
-
     private val dijkstraAlgorithmController = DijkstraAlgorithmController()
 
     fun addNode(new:UINode){
         nodes.add(new)
         graphView.update()
-
-
-
-
     }
 
     fun addEdge(new:UIEdge){
-
-
         for (e in edges) {
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
@@ -223,7 +158,6 @@ class MainPresenter(
             if (e.sourceNode == deleted || e.endNode == deleted)
                 removableEdges.add(e)
         }
-
         edges.removeAll(removableEdges)
 
         val removableDualEdges = ArrayList<UIDualEdge>()
@@ -238,37 +172,27 @@ class MainPresenter(
         graphView.update()
     }
 
-    fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
+    private fun isNodeHaveEdges(startNode:Int):Boolean{
+        for(e in edges)
+            if (nodes.indexOf(e.sourceNode) == startNode || nodes.indexOf(e.endNode) == startNode)
+                return true
 
+        for(e in dualEdges)
+            if (nodes.indexOf(e.edge1.sourceNode) == startNode || nodes.indexOf(e.edge1.endNode) == startNode || nodes.indexOf(e.edge2.sourceNode) == startNode || nodes.indexOf(e.edge2.endNode) == startNode)
+                return true
+
+        return false
+    }
+
+    private fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
         //проверка на существование вершины в массиве ребер
-
-        var flag = false
-
-        for(e in edges){
-            if (nodes.indexOf(e.sourceNode) == startNode || nodes.indexOf(e.endNode) == startNode){
-                flag = true
-                break
-            }
-        }
-        for(e in dualEdges){
-            if (nodes.indexOf(e.edge1.sourceNode) == startNode || nodes.indexOf(e.edge1.endNode) == startNode || nodes.indexOf(e.edge2.sourceNode) == startNode || nodes.indexOf(e.edge2.endNode) == startNode){
-                flag = true
-                break
-            }
-        }
-        if (!flag) {
-            val logEvent = Event.LogEvent("Данная вершина не имеет ребер")
-            BroadcastPresenter.generateEvent(logEvent)
+        if (!isNodeHaveEdges(startNode)){
+            printLogs("Данная вершина не имеет ребер")
             onAlgorithmEndConfirmed()
-            for(n in nodes){
-                n.reset()
-            }
-            graphView.update()
             return
         }
 
-
-        val gr:ArrayList<Edge> = ArrayList<Edge>()
+        val gr= ArrayList<Edge>()
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
         }
@@ -282,21 +206,12 @@ class MainPresenter(
         dijkstraAlgorithmController.initStart(startNode,graph.getSnapshotHistory(),graph.getPath(startNode)) // здесь принимаю ответ
     }
 
-    private fun snapshotToMap(snap:Snapshot):HashMap<Int,List<String>>{
-        val list = snap.getAllInfo().substring(1,snap.getAllInfo().length-1).split("), (")
-        val double = HashMap<Int,List<String>>(list.size)
-        for (e in list){
-            double[list.indexOf(e)] = e.split(",")
-        }
-        return double
-    }
-
     private fun updateAllNodes(snapMap:HashMap<Int,List<String>>){
         // snapMap[0][0] - текущий узел
         // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
         nodes[snapMap[0]!![0].toInt()].isActive = true
 
-        for (i in 2..snapMap.size-1){
+        for (i in 2 until snapMap.size){
             nodes[snapMap[i]!![0].toInt()].bestWay = snapMap[i]!![1]
             nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
         }
@@ -307,23 +222,24 @@ class MainPresenter(
         val indexCurNode = snapMap[0]!![0].toInt()
         val isRelax = snapMap[1]!![0].toBoolean()
 
-        logs.append("Текущий узел: ${indexCurNode+1}\n")
+        logs.append("Ребро: (${snapMap[indexCurNode+2]!![2].toInt()},${indexCurNode+1})\n")
+
         if (isRelax){
             logs.append("Произошла релаксация\n")
         }
         else{
             logs.append("Не произошла релаксация\n")
         }
-
-        logs.append("Лучший путь до узла: ${snapMap[indexCurNode+2]!![1].toInt()}\n")
-        logs.append("Предыдущий узел: ${snapMap[indexCurNode+2]!![2].toInt()}")
-
+        var prevBestWay = ""
+        val previousSnapMap = dijkstraAlgorithmController.getPreviousSnap()?.toMap()
+        if (previousSnapMap!=null){
+            prevBestWay = previousSnapMap[indexCurNode+2]!![1]
+        }
+        logs.append("Лучший расстояние до узла: ${snapMap[indexCurNode+2]!![1].toInt()}(было $prevBestWay)")
         return logs.toString()
     }
 
-
-    fun nextStep(){
-
+    private fun nextStep(){
         if (!dijkstraAlgorithmController.isNextStepPossible()){
             val logEvent = Event.LogEvent("Следующий шаг невозможен")
             BroadcastPresenter.generateEvent(logEvent)
@@ -336,19 +252,18 @@ class MainPresenter(
         for(n in nodes){
             n.reset()
         }
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getNextStep()?:return)
-        //обновляем состояния узлов
+
+        val snapMap = dijkstraAlgorithmController.getNextStep()?.toMap() ?:return
+
         updateAllNodes(snapMap)
 
         val logEvent = Event.LogEvent(getLogs(snapMap))
         BroadcastPresenter.generateEvent(logEvent)
 
-        //перерисовываем
         graphView.update()
     }
 
-    fun previousStep(){
-
+    private fun previousStep(){
         if (!dijkstraAlgorithmController.isPreviousStepPossible()){
             val logEvent = Event.LogEvent("Предыдущий шаг невозможен")
             BroadcastPresenter.generateEvent(logEvent)
@@ -362,9 +277,8 @@ class MainPresenter(
             n.reset()
         }
 
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getPreviousStep()?:return)
+        val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap() ?:return
         updateAllNodes(snapMap)
-
 
         val logEvent = Event.LogEvent(getLogs(snapMap))
         BroadcastPresenter.generateEvent(logEvent)
@@ -372,94 +286,46 @@ class MainPresenter(
         graphView.update()
 
     }
-    fun finishAlgorithm(){
+
+    private fun finishAlgorithm(){
         for(n in nodes){
             n.reset()
         }
-        val snapMap = snapshotToMap(dijkstraAlgorithmController.getLast()!!)
+        val snapMap = dijkstraAlgorithmController.getLast()?.toMap() ?:return
         updateAllNodes(snapMap)
         graphView.displayDijkstraAlgorithmResult(dijkstraAlgorithmController.answer)
         graphView.update()
     }
 
-
-
-
-
-    private fun convertEdgeInfoinArrayList(info_ :String) : ArrayList<List<String>>?{
-        val string = info_.replace(" ","")
-        val reg = (Regex("^(\\(\\d+,\\d+,\\d+\\),)*\\(\\d+,\\d+,\\d+\\)\$"))
-        if (!string.matches(reg)) return null
-
-        val match = Regex("(\\d+,\\d+,\\d+)").findAll(string)
-
-        val list = ArrayList<List<String>>()
-        for(e in match){
-            val temp = e.destructured.toList().toString()
-            list.add(temp.substring(1,temp.length-1).split(","))
-        }
-        return list
-    }
-
-    private fun convertNodeInfoinArrayList(info_ :String) : ArrayList<List<String>>?{
-        val string = info_.replace(" ","")
-        val reg = (Regex("^(\\(\\d+,\\d+\\),)*\\(\\d+,\\d+\\)\$"))
-        if (!string.matches(reg)) return null
-
-        val match = Regex("(\\d+,\\d+)").findAll(string)
-
-        val list = ArrayList<List<String>>()
-        for(e in match){
-            val temp = e.destructured.toList().toString()
-            list.add(temp.substring(1,temp.length-1).split(","))
-        }
-        return list
-    }
-
-
-
-
-    fun downloadGraph(fileName:String){
-        val inputStream: InputStream = File(fileName).inputStream()
-
-        val allInfo = mutableListOf<String>()
-        inputStream.bufferedReader().forEachLine { allInfo.add(it) }
-
-        if(allInfo.size !in 1..2) return  //если в файле больше, чем нужно строк
-
-        val nodeInfoList = (convertNodeInfoinArrayList(allInfo[0].replace(" ",""))) ?: return //ошибка
-
-        var edgeInfoList : ArrayList<List<String>>? = null
-
-        if (allInfo.size==2) //нет информации о ребрах
-            edgeInfoList = (convertEdgeInfoinArrayList(allInfo[1].replace(" ",""))) ?: return //ошибка
-
-        //инициализируем UI граф
+    private fun downloadGraph(fileName:String) {
+        val fileHandler = GraphFileHandler(fileName)
+        val graphInfo = fileHandler.downloadGraphInfo() ?: return //ошибка в чтении файла
 
         nodes.clear()
         edges.clear()
         dualEdges.clear()
+
+        //graphInfo.first - информация о вершинах, graphInfo.second - информация о ребрах
         //инициализируем вершины
-        for (n in nodeInfoList){
-            addNode(UINode(Coordinate(n[0].toInt(),n[1].toInt())))
+        for (n in graphInfo.first!!) {
+            addNode(UINode(Coordinate(n[0].toInt(), n[1].toInt())))
         }
-        if(edgeInfoList!=null) //если есть информация о ребрах
-            for (e in edgeInfoList) {
+        //инициализируем ребра
+        if (graphInfo.second != null) //если есть информация о ребрах
+            for (e in graphInfo.second!!) {
                 addEdge(UIEdge(nodes[e[0].toInt()], nodes[e[1].toInt()], e[2]))
             }
-
         graphView.update()
-
     }
 
-    fun saveGraph(fileName:String){
+    override fun toString():String{
         //создаем граф из строки
         val graphAsString = StringBuilder("")
         for (n in nodes)
-            graphAsString.append("(${n.toString()}), ")
+            graphAsString.append("($n), ")
 
         if(graphAsString.isEmpty())
-            return  //нет узлов
+            return  ""//нет узлов
 
         graphAsString.delete(graphAsString.length - 2, graphAsString.length).append("")
         graphAsString.append("\n")
@@ -469,13 +335,18 @@ class MainPresenter(
             graphAsString.append("(${nodes.indexOf(e.edge1.sourceNode)}, ${nodes.indexOf(e.edge1.endNode)}, ${e.edge1.weight}), ")
             graphAsString.append("(${nodes.indexOf(e.edge2.sourceNode)}, ${nodes.indexOf(e.edge2.endNode)}, ${e.edge2.weight}), ")
         }
-
         if(!(edges.isEmpty() && dualEdges.isEmpty()))
             graphAsString.delete(graphAsString.length - 2, graphAsString.length).append("")
+        return graphAsString.toString()
+    }
 
+    private fun saveGraph(fileName:String){
+        val graphAsString = this.toString()
+        if (graphAsString.isEmpty()){
+            return
+        }
         //Записываем в файл
-        val resultFile = File(fileName)
-        Files.write(resultFile.toPath(), graphAsString.toString().toByteArray(), StandardOpenOption.CREATE)
-
+        val fileHandler = GraphFileHandler(fileName)
+        fileHandler.saveGraphInfo(graphAsString)
     }
 }
