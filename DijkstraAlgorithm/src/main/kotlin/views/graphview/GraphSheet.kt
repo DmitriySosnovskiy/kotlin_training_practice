@@ -116,7 +116,8 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         panelGraphics.fill(strokeCircle)
 
         if(node.isActive) {
-            panelGraphics.color = UIConstants.nodeActiveFillColor
+            if(node.bestWay == "") panelGraphics.color = UIConstants.passedNodeFillColor
+            else panelGraphics.color = UIConstants.nodeActiveFillColor
         }
         else panelGraphics.color = UIConstants.nodeFillColor
 

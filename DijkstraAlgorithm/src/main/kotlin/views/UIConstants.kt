@@ -20,6 +20,7 @@ object UIConstants {
     const val dualEdgeRotationAngleInGrads = Math.PI / 4
 
     val nodeFillColor = Color(106, 233, 114)
+    val passedNodeFillColor = Color(218, 233, 39)
     val nodeActiveFillColor = Color(255, 0, 0)
     val nodeStrokeFillColor = Color(112, 112, 112)
     val textColor = Color(112, 112, 112)
