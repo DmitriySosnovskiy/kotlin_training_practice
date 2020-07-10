@@ -93,10 +93,8 @@ class MainPresenter(
                 val density = parametersRequester.paramPanel.densitySlider.value
                 val verticiesAmount = parametersRequester.paramPanel.verticesAmountSpinner.value.toString().toInt()
                 val offset = parametersRequester.areaPicker.squareZoomFactor * UIConstants.areaChooseCoordinateUnit
-                Thread(Runnable {
-                    generateGraph(density,verticiesAmount,offset)
-                }).start()
-                graphView.update()
+                generateGraph(density,verticiesAmount,offset)
+               graphView.update()
             }
         }
 
@@ -497,7 +495,7 @@ class MainPresenter(
 
         val range = offset/100 - 2
         val numbNodes = verticiesAmount
-        val density = (Math.ceil(((numbNodes-1)*density_.toDouble())/100)).toInt()
+        val density =(Math.ceil(((numbNodes-1)*density_.toDouble())/100)).toInt()
         val weight = 100
         val randomNodes = ArrayList<Coordinate>()
         for(i in 1..range){
