@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D
 import javax.swing.*
 import javax.swing.border.EmptyBorder
 import javax.swing.text.NumberFormatter
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 class AreaPicker : JPanel() {
@@ -72,7 +73,12 @@ class ParametersPanel(val areaPicker: AreaPicker) : JPanel() {
         add(coordinatesLabel)
 
         verticesAmountSpinner.addChangeListener {
-            areaPicker.minPointsAmount = (sqrt(verticesAmountSpinner.value.toString().toInt().toDouble()).toInt() + 2)
+            val value = verticesAmountSpinner.value.toString().toInt()
+            var fin = 0
+            fin = if (sqrt(value.toDouble()).toInt().toDouble().pow(2).toInt() == value) {
+                sqrt(value.toDouble()).toInt() + 2
+            } else sqrt(value.toDouble()).toInt() + 3
+            areaPicker.minPointsAmount = fin
             if(areaPicker.squareZoomFactor < areaPicker.minPointsAmount) {
                 areaPicker.squareZoomFactor = areaPicker.minPointsAmount
                 coordinatesLabel.text = "Координаты покрытия: (${UIConstants.areaChooseCoordinateUnit*areaPicker.squareZoomFactor}; " +
