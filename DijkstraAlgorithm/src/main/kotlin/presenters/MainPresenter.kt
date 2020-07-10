@@ -108,6 +108,10 @@ class MainPresenter(
         for (e in edges){
             e.reset()
         }
+        for (e in dualEdges){
+            e.edge1.reset()
+            e.edge2.reset()
+        }
     }
 
     val nodes = ArrayList<UINode>()
@@ -229,14 +233,14 @@ class MainPresenter(
 
     private fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
         //проверка на существование вершины в массиве ребер
-        if (!isNodeHaveEdges(startNode)){
-            printLogs("Данная вершина не имеет ребер\n")
+        if (!isNodeHaveEdges(startNode-1)){
+            printLogs("Данная вершина не имеет ребер\nАлгоритм прерван")
             onAlgorithmEndConfirmed()
             return
         }
         val emptyNodes = isAllNodesConnected()
         if (emptyNodes.isNotEmpty()){
-            printLogs("Соедините вершины:\n$emptyNodes")
+            printLogs("Соедините вершины:\n$emptyNodes\nАлгоритм прерван")
             onAlgorithmEndConfirmed()
             return
         }
@@ -255,14 +259,15 @@ class MainPresenter(
     }
 
     private fun updateAllNodes(snapMap:HashMap<Int,List<String>>){
-        // snapMap[0][0] - текущий узел
-        // snapMap[1+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
+        // snapMap[0][0] - текущий узел, snapMap[0][1] - prevNode, snapMap[0][2] - relax
+
+        // snapMap[3+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
 
         val curNode = snapMap[0]!![0].toInt()
-        val prevNode = snapMap[curNode+2]!![2].toInt()
+        val prevNode = snapMap[0]!![1].toInt()
 
         nodes[curNode].isActive = true
-        for (i in 2 until snapMap.size){
+        for (i in 1 until snapMap.size){
             nodes[snapMap[i]!![0].toInt()].bestWay = snapMap[i]!![1]
             nodes[snapMap[i]!![0].toInt()].nodeFrom = snapMap[i]!![2]
         }
@@ -271,26 +276,31 @@ class MainPresenter(
         for (e in edges){
             if (nodes.indexOf(e.endNode) == curNode && nodes.indexOf(e.sourceNode)==prevNode){
                 e.isActive = true
+                return
             }
         }
         for (e in dualEdges){
-            if (nodes.indexOf(e.edge1.endNode) == curNode && nodes.indexOf(e.edge1.sourceNode)==prevNode)
+            if (nodes.indexOf(e.edge1.endNode) == curNode && nodes.indexOf(e.edge1.sourceNode)==prevNode) {
                 e.edge1.isActive = true
-            if (nodes.indexOf(e.edge2.endNode) == curNode && nodes.indexOf(e.edge2.sourceNode)==prevNode)
+                return
+            }
+            if (nodes.indexOf(e.edge2.endNode) == curNode && nodes.indexOf(e.edge2.sourceNode)==prevNode) {
                 e.edge2.isActive = true
+                return
+            }
         }
     }
 
     private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
         val logs = StringBuilder("")
-        val indexCurNode = snapMap[0]!![0].toInt()
-        val isRelax = snapMap[1]!![0].toBoolean()
+        val indexCurNode = snapMap[0]!![0].toInt() +1
+        val isRelax = snapMap[0]!![2].toBoolean()
 
-        if (snapMap[indexCurNode+2]!![2].toInt() == indexCurNode+1){
+        if (snapMap[indexCurNode]!![2].toInt() == indexCurNode){
             logs.append("Исходная вершина")
             return logs.toString()
         }
-        logs.append("Ребро: (${snapMap[indexCurNode+2]!![2].toInt()},${indexCurNode+1})\n")
+        logs.append("Ребро: (${snapMap[indexCurNode]!![2].toInt()},${indexCurNode})\n")
         if (isRelax){
             logs.append("Произошла релаксация\n")
         }
@@ -300,9 +310,9 @@ class MainPresenter(
         var prevBestWay = ""
         val previousSnapMap = dijkstraAlgorithmController.getPreviousSnap()?.toMap()
         if (previousSnapMap!=null){
-            prevBestWay = previousSnapMap[indexCurNode+2]!![1]
+            prevBestWay = previousSnapMap[indexCurNode]!![1]
         }
-        logs.append("Лучший расстояние до узла: ${snapMap[indexCurNode+2]!![1].toInt()}(было $prevBestWay)")
+        logs.append("Лучший расстояние до узла: ${snapMap[indexCurNode]!![1].toInt()}(было $prevBestWay)")
         return logs.toString()
     }
 
@@ -393,7 +403,7 @@ class MainPresenter(
     }
 
     override fun toString():String{
-        //создаем граф из строки
+        //создаем строку из графа
         val graphAsString = StringBuilder("")
         for (n in nodes)
             graphAsString.append("($n), ")

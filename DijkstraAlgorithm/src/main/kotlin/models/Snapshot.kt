@@ -1,7 +1,7 @@
 package models
 
 
-class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,private val relax:Boolean)
+class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,private val prevVertex:Int,private val relax:Boolean)
 {
     private val vertexAsString = StringBuilder("")
 
@@ -25,7 +25,7 @@ class Snapshot (graph: HashMap<Int, Vertex>, private val currentVertex: Int,priv
     }
 
     fun getAllInfo(): String{
-        return ("($currentVertex), ($relax), ${vertexAsString.toString()}")
+        return ("($currentVertex,$prevVertex,$relax), ${vertexAsString.toString()}")
     }
 
     fun toMap():HashMap<Int,List<String>>{

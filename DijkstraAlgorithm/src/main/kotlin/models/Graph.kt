@@ -106,7 +106,7 @@ class Graph(private val edges: List<Edge>){
             v.dist = if (v == source) 0 else Int.MAX_VALUE
             treeSet.add(v)
         }
-        this.makeSnapshot(startName,false)
+        this.makeSnapshot(startName,startName,false)
         dijkstra(treeSet)
     }
 
@@ -142,11 +142,11 @@ class Graph(private val edges: List<Edge>){
                     currentNgb.dist = alternateDist
                     currentNgb.previous = currV
                     treeSet.add(currentNgb)
-                    this.makeSnapshot(currentNgb.name,true)
+                    this.makeSnapshot(currentNgb.name,currV.name,true)
 
                 }
                 else{
-                    this.makeSnapshot(currentNgb.name,false)
+                    this.makeSnapshot(currentNgb.name,currV.name,false)
                 }
 
             }
@@ -195,8 +195,8 @@ class Graph(private val edges: List<Edge>){
      *   }
      */
 
-    private fun makeSnapshot(vertex:Int,relax:Boolean){
-        snapshotKeeper.putSnapshot(Snapshot(graph,vertex,relax))
+    private fun makeSnapshot(vertex:Int,prev:Int,relax:Boolean){
+        snapshotKeeper.putSnapshot(Snapshot(graph,vertex,prev,relax))
     }
 
     fun getSnapshotHistory() :SnapshotKeeper{
