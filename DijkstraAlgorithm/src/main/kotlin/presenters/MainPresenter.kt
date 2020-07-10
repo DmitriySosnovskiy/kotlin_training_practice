@@ -3,7 +3,10 @@ package presenters
 import models.Edge
 import models.Graph
 import views.graphview.*
+import java.util.*
 import javax.swing.JOptionPane
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 interface GraphView {
     fun update()
@@ -18,6 +21,7 @@ class MainPresenter(
     init {
         BroadcastPresenter.registerSubscriber(this)
     }
+
     private fun printLogs(log:String){
         val logEvent = Event.LogEvent(log)
         BroadcastPresenter.generateEvent(logEvent)
@@ -25,7 +29,6 @@ class MainPresenter(
 
     fun onAlgorithmEndConfirmed() {
         resetAll()
-       // nodes.forEach { it.reset() }
         graphView.setAlgorithmRunningFlag(false)
         graphView.update()
         BroadcastPresenter.generateEvent(Event.AfterAlgorithmEnded)
@@ -137,7 +140,6 @@ class MainPresenter(
     }
 
     fun deleteEdge(deleted:UIEdge){
-
         val isDeleted = edges.remove(deleted)
         if(!isDeleted)
         {
@@ -192,14 +194,52 @@ class MainPresenter(
         return false
     }
 
+
+    private fun isAllNodesConnected(): String {
+        val goodNodes:TreeSet<Int> = TreeSet()
+        for (n in nodes){
+            for(e in edges){
+                if (e.sourceNode == n || e.endNode == n)
+                    goodNodes.add(nodes.indexOf(n)+1)
+            }
+            for (e in dualEdges){
+                if (e.edge1.sourceNode == n || e.edge1.endNode ==n||e.edge2.sourceNode==n||e.edge2.endNode==n)
+                    goodNodes.add(nodes.indexOf(n)+1)
+            }
+        }
+        goodNodes.toSortedSet()
+        val allNodes = ArrayList<Int>()
+        val badNodes = ArrayList<Int>()
+
+        for (n in nodes){
+            allNodes.add(nodes.indexOf(n)+1)
+            badNodes.add(nodes.indexOf(n)+1)
+        }
+
+        for (n in allNodes){
+            for(n_ in goodNodes){
+                if (n ==n_){
+                    badNodes.remove(n)
+                }
+            }
+        }
+       return badNodes.joinToString ()
+    }
+
+
     private fun startAlgorithm(startNode:Int){ //где хранить конечный и начальный узел
         //проверка на существование вершины в массиве ребер
         if (!isNodeHaveEdges(startNode)){
-            printLogs("Данная вершина не имеет ребер")
+            printLogs("Данная вершина не имеет ребер\n")
             onAlgorithmEndConfirmed()
             return
         }
-
+        val emptyNodes = isAllNodesConnected()
+        if (emptyNodes.isNotEmpty()){
+            printLogs("Соедините вершины:\n$emptyNodes")
+            onAlgorithmEndConfirmed()
+            return
+        }
         val gr= ArrayList<Edge>()
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
@@ -239,8 +279,8 @@ class MainPresenter(
             if (nodes.indexOf(e.edge2.endNode) == curNode && nodes.indexOf(e.edge2.sourceNode)==prevNode)
                 e.edge2.isActive = true
         }
-
     }
+
     private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
         val logs = StringBuilder("")
         val indexCurNode = snapMap[0]!![0].toInt()
@@ -268,7 +308,7 @@ class MainPresenter(
 
     private fun nextStep(){
         if (!dijkstraAlgorithmController.isNextStepPossible()){
-            printLogs("Следующий шаг невозможен, текущий шаг последний")
+            printLogs("Следующий шаг невозможен:\nТекущий шаг последний")
             return
         }
         printLogs("Выполнен следующий шаг")
@@ -291,13 +331,11 @@ class MainPresenter(
 
     private fun previousStep(){
         if (!dijkstraAlgorithmController.isPreviousStepPossible()){
-            printLogs("Предыдущий шаг невозможен, текущий шаг первый")
+            printLogs("Предыдущий шаг невозможен:\nТекущий шаг первый")
             return
         }
         printLogs("Выполнен предыдущий шаг")
-
         resetAll()
-
         val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap()
 
         if (snapMap==null){
@@ -309,14 +347,11 @@ class MainPresenter(
 
         val logEvent = Event.LogEvent(getLogs(snapMap))
         BroadcastPresenter.generateEvent(logEvent)
-
         graphView.update()
-
     }
 
     private fun finishAlgorithm(){
         resetAll()
-
         val snapMap = dijkstraAlgorithmController.getLast()?.toMap()
 
         if (snapMap==null){
