@@ -24,6 +24,7 @@ object UIConstants {
     val nodeStrokeFillColor = Color(112, 112, 112)
     val textColor = Color(112, 112, 112)
     val edgeColor = Color(112, 112, 112)
+    val activeEdgeColor = Color(59, 93, 255)
 
     val nodeTextFont = Font("Segoe UI", Font.PLAIN, 40)
     val edgeWeightTextFont = Font("Segoe UI", Font.PLAIN, 20)

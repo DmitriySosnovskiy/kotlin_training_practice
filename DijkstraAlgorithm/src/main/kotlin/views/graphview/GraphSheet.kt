@@ -145,20 +145,22 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     private fun drawEdge(edge: UIEdge, panelGraphics: Graphics2D)
     {
         panelGraphics.stroke = BasicStroke((edge.width/2).toFloat())
-        panelGraphics.color = UIConstants.edgeColor
+
+        if(edge.isActive) panelGraphics.color = UIConstants.activeEdgeColor
+        else panelGraphics.color = UIConstants.edgeColor
         panelGraphics.drawLine(edge.sourceNode.coordinate.x,
             edge.sourceNode.coordinate.y,
             edge.endNode.coordinate.x,
             edge.endNode.coordinate.y)
 
         val arrow = mathProvider.calculateEdgeArrow(edge)
+        drawEdgeArrow(arrow, panelGraphics)
 
         val textCoordinate = mathProvider.calculateEdgeWeightTextPosition(edge)
+        panelGraphics.color = UIConstants.textColor
         panelGraphics.font = UIConstants.edgeWeightTextFont
         panelGraphics.drawString(edge.weight,
             textCoordinate.x, textCoordinate.y)
-
-        drawEdgeArrow(arrow, panelGraphics)
     }
 
     private fun drawEdgeArrow(arrow: UIEdgeArrow, panelGraphics: Graphics2D)
@@ -176,7 +178,9 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     private fun drawDualEdge(dualEdge: UIDualEdge, panelGraphics: Graphics2D){
         panelGraphics.stroke = BasicStroke((UIConstants.edgeWidth/2).toFloat())
-        panelGraphics.color = UIConstants.edgeColor
+
+        if (dualEdge.edge1.isActive) panelGraphics.color = UIConstants.activeEdgeColor
+        else panelGraphics.color = UIConstants.edgeColor
 
         val coordinates = mathProvider.calculateDualEdgeCoordinates(dualEdge)
         val arrow1 = mathProvider.calculateArrowForEdge(
@@ -191,10 +195,14 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             coordinates.second.second.y
         )
         drawEdgeArrow(arrow1, panelGraphics)
+        panelGraphics.color = UIConstants.textColor
         panelGraphics.font = UIConstants.edgeWeightTextFont
         panelGraphics.drawString(dualEdge.edge1.weight,
             weightPosition1.x, weightPosition1.y)
 
+
+        if (dualEdge.edge2.isActive) panelGraphics.color = UIConstants.activeEdgeColor
+        else panelGraphics.color = UIConstants.edgeColor
 
         val arrow2 = mathProvider.calculateArrowForEdge(
             coordinates.second.first,
@@ -209,6 +217,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             coordinates.second.first.y
         )
         drawEdgeArrow(arrow2, panelGraphics)
+        panelGraphics.color = UIConstants.textColor
         panelGraphics.drawString(dualEdge.edge2.weight,
             weightPosition2.x, weightPosition2.y)
     }
