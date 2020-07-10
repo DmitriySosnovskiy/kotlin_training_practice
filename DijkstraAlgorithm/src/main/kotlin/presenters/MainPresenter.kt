@@ -214,12 +214,10 @@ class MainPresenter(
         goodNodes.toSortedSet()
         val allNodes = ArrayList<Int>()
         val badNodes = ArrayList<Int>()
-
         for (n in nodes){
             allNodes.add(nodes.indexOf(n)+1)
             badNodes.add(nodes.indexOf(n)+1)
         }
-
         for (n in allNodes){
             for(n_ in goodNodes){
                 if (n ==n_){
@@ -227,7 +225,7 @@ class MainPresenter(
                 }
             }
         }
-       return badNodes.joinToString ()
+       return badNodes.joinToString()
     }
 
 
@@ -294,13 +292,14 @@ class MainPresenter(
     private fun getLogs(snapMap:HashMap<Int,List<String>>):String{
         val logs = StringBuilder("")
         val indexCurNode = snapMap[0]!![0].toInt() +1
+        val prevNode = snapMap[0]!![1].toInt() +1
         val isRelax = snapMap[0]!![2].toBoolean()
 
         if (snapMap[indexCurNode]!![2].toInt() == indexCurNode){
             logs.append("Исходная вершина")
             return logs.toString()
         }
-        logs.append("Ребро: (${snapMap[indexCurNode]!![2].toInt()},${indexCurNode})\n")
+        logs.append("Ребро: (${prevNode},${indexCurNode})\n")
         if (isRelax){
             logs.append("Произошла релаксация\n")
         }
