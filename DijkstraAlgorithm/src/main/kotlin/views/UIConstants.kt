@@ -8,6 +8,7 @@ object UIConstants {
     const val circleRadius = 32
     const val circleStrokeWidth = 3
     const val spaceBetweenButtonsInToolbar = 5
+    const val spaceBetweenContentInParametersRequester = 5
     const val graphScreenSheetWidth = 3000
     const val graphScreenSheetHeight = 3000
     const val horizontalScrollIncrement = 20
@@ -33,4 +34,8 @@ object UIConstants {
     val edgeWeightTextFont = Font("Segoe UI", Font.PLAIN, 20)
     val nodeSignTextFont = Font("Segoe UI", Font.PLAIN, 15)
     val logsOutputTextFont = Font("Sans Serif", Font.PLAIN, 15)
+
+    const val areaChooseSquareSize = 10
+    const val areaPickerScreenWidth = graphScreenSheetWidth / areaChooseSquareSize
+    const val areaPickedScreenHeight = graphScreenSheetHeight / areaChooseSquareSize
 }

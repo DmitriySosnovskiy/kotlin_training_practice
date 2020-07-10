@@ -77,11 +77,18 @@ class MainPresenter(
                 finishAlgorithm()
             }
             is Event.GenerateGraph->{
+                requestGeneratingGraphParameters()
                 Thread(Runnable {
                     generateGraph()
                 }).start()
             }
         }
+    }
+
+    private fun requestGeneratingGraphParameters(){
+        val parametersRequester = GeneratingGraphParametersRequestPane()
+        val responseCode = JOptionPane.showConfirmDialog(
+            null, parametersRequester, "Данные генерации", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
     }
 
     private fun clearScene() {

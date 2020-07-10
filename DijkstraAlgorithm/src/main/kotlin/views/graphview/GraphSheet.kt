@@ -134,16 +134,18 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
 
         if(isAlgorithmRunning) {
-            val sign =
-                "[${node.bestWay}/ ${node.nodeFrom}]"
-            panelGraphics.font = UIConstants.nodeSignTextFont
-            val signHeight = fontMetrics.getStringBounds(sign, panelGraphics).height.toInt()
-            val signWidth = fontMetrics.getStringBounds(sign, panelGraphics).width.toInt()
-            panelGraphics.drawString(
-                sign,
-                node.coordinate.x - signWidth/5,
-                node.coordinate.y + node.radius + signHeight/2
-            )
+            if(!node.isActive) {
+                val sign =
+                    "[${node.bestWay}/ ${node.nodeFrom}]"
+                panelGraphics.font = UIConstants.nodeSignTextFont
+                val signHeight = fontMetrics.getStringBounds(sign, panelGraphics).height.toInt()
+                val signWidth = fontMetrics.getStringBounds(sign, panelGraphics).width.toInt()
+                panelGraphics.drawString(
+                    sign,
+                    node.coordinate.x - signWidth / 5,
+                    node.coordinate.y + node.radius + signHeight / 2
+                )
+            }
         }
     }
 
