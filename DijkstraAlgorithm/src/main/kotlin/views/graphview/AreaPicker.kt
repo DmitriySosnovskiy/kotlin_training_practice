@@ -11,8 +11,8 @@ import kotlin.math.sqrt
 
 class AreaPicker : JPanel() {
 
-    var squareZoomFactor = 3
-    var minPointsAmount = 3
+    var squareZoomFactor = 4
+    var minPointsAmount = 4
 
     val maxPointsAmount = UIConstants.areaPickerScreenWidth / UIConstants.areaChooseSquareSize
 
@@ -39,7 +39,7 @@ class ParametersPanel(val areaPicker: AreaPicker) : JPanel() {
 
     val densitySlider = JSlider(1, 100)
 
-    val spinnerModel = SpinnerNumberModel(3, 3, 100, 1)
+    val spinnerModel = SpinnerNumberModel(4, 4, 100, 1)
     val verticesAmountSpinner = JSpinner(spinnerModel)
 
     init {
