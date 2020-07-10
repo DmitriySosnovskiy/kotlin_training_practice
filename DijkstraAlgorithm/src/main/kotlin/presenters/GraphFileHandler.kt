@@ -27,9 +27,6 @@ class GraphFileHandler(private val fileName: String) {
     }
 
     fun downloadGraphInfo():Pair<ArrayList<List<String>>?,ArrayList<List<String>>?>?{
-
-
-
         val inputStream: InputStream = File(fileName).inputStream()
         val allInfo = mutableListOf<String>()
         inputStream.bufferedReader().forEachLine { allInfo.add(it) }

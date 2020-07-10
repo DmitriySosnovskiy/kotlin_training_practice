@@ -30,7 +30,7 @@ class MainPresenter(
     }
 
     fun onAlgorithmEndConfirmed() {
-        resetAll()
+        resetNodesAndEdges()
         graphView.setAlgorithmRunningFlag(false)
         graphView.update()
         BroadcastPresenter.generateEvent(Event.AfterAlgorithmEnded)
@@ -79,9 +79,6 @@ class MainPresenter(
             }
             is Event.GenerateGraph->{
                 requestGeneratingGraphParameters()
-                Thread(Runnable {
-                    generateGraph()
-                }).start()
             }
         }
     }
@@ -96,6 +93,11 @@ class MainPresenter(
                 val density = parametersRequester.paramPanel.densitySlider.value
                 val verticiesAmount = parametersRequester.paramPanel.verticesAmountSpinner.value.toString().toInt()
                 val offset = parametersRequester.areaPicker.squareZoomFactor * UIConstants.areaChooseCoordinateUnit
+                Thread(Runnable {
+                    generateGraph(density,verticiesAmount,offset)
+                }).start()
+
+
             }
         }
 
@@ -140,18 +142,6 @@ class MainPresenter(
         }
     }
 
-    private fun resetAll(){
-        for(n in nodes){
-            n.reset()
-        }
-        for (e in edges){
-            e.reset()
-        }
-        for (e in dualEdges){
-            e.edge1.reset()
-            e.edge2.reset()
-        }
-    }
 
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
@@ -385,7 +375,7 @@ class MainPresenter(
         }
         printLogs("Выполнен следующий шаг")
 
-        resetAll()
+        resetNodesAndEdges()
 
         val snapMap = dijkstraAlgorithmController.getNextStep()?.toMap()
 
@@ -407,7 +397,7 @@ class MainPresenter(
             return
         }
         printLogs("Выполнен предыдущий шаг")
-        resetAll()
+        resetNodesAndEdges()
         val snapMap = dijkstraAlgorithmController.getPreviousStep()?.toMap()
 
         if (snapMap==null){
@@ -423,7 +413,7 @@ class MainPresenter(
     }
 
     private fun finishAlgorithm(){
-        resetAll()
+        resetNodesAndEdges()
         val snapMap = dijkstraAlgorithmController.getLast()?.toMap()
 
         if (snapMap==null){
@@ -441,8 +431,7 @@ class MainPresenter(
 
     private fun downloadGraph(fileName:String) {
         val file = File(fileName)
-        if(!file.exists())
-        {
+        if(!file.exists()) {
             printLogs("Ошибка в чтении файла, файл не существует")
             return
         }
@@ -503,25 +492,24 @@ class MainPresenter(
         fileHandler.saveGraphInfo(graphAsString)
     }
 
-    private fun generateGraph(){
+    private fun generateGraph(density_:Int,verticiesAmount:Int,offset:Int){
         nodes.clear()
         dualEdges.clear()
         edges.clear()
 
-        val high = 3000
-        val width = 3000
-        val numbNodes = 5 //max = 784
-        val density = 1//максимум 40
-        val weight = 10
+        val range = offset/100 - 2
+        val numbNodes = verticiesAmount
+        val density = 1//(Math.ceil(((numbNodes-1)*density_.toDouble())/100)).toInt()
+        val weight = 100
         val randomNodes = ArrayList<Coordinate>()
-        for(i in 1..28){
-            for (j in 1..28){
+        for(i in 1..range){
+            for (j in 1..range){
                 randomNodes.add(Coordinate(i*100,j*100))
             }
         }
         //генерируем узлы
-        for (i in 0 until numbNodes){
-            val randN = (0..randomNodes.size-1).random()
+        for (i in 0 .. numbNodes-1){
+            val randN = (0 .. randomNodes.size-1).random()
             nodes.add(UINode((randomNodes[randN])))
             randomNodes.remove(randomNodes[randN])
         }
@@ -534,7 +522,7 @@ class MainPresenter(
             }
             new.remove(nodes.indexOf(n))
             for(i in 1..density){
-                val randC = (0..new.size-1).random()
+                val randC = (0 until new.size).random()
                 val randW = (1..weight).random().toString()
                 addEdge_(UIEdge(n,nodes[new[randC]],randW))
                 new.remove(new[randC])
