@@ -96,8 +96,7 @@ class MainPresenter(
                 Thread(Runnable {
                     generateGraph(density,verticiesAmount,offset)
                 }).start()
-
-
+                graphView.update()
             }
         }
 
@@ -141,7 +140,6 @@ class MainPresenter(
             }
         }
     }
-
 
     val nodes = ArrayList<UINode>()
     val edges = ArrayList<UIEdge>()
@@ -499,7 +497,7 @@ class MainPresenter(
 
         val range = offset/100 - 2
         val numbNodes = verticiesAmount
-        val density = 1//(Math.ceil(((numbNodes-1)*density_.toDouble())/100)).toInt()
+        val density = (Math.ceil(((numbNodes-1)*density_.toDouble())/100)).toInt()
         val weight = 100
         val randomNodes = ArrayList<Coordinate>()
         for(i in 1..range){
