@@ -35,6 +35,7 @@ object UIConstants {
     val nodeSignTextFont = Font("Segoe UI", Font.PLAIN, 15)
     val logsOutputTextFont = Font("Sans Serif", Font.PLAIN, 15)
 
+    const val areaChooseCoordinateUnit = 100
     const val areaChooseSquareSize = 10
     const val areaPickerScreenWidth = graphScreenSheetWidth / areaChooseSquareSize
     const val areaPickedScreenHeight = graphScreenSheetHeight / areaChooseSquareSize

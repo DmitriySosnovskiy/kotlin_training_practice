@@ -6,7 +6,7 @@ import java.awt.Dimension
 import javax.swing.JScrollPane
 import javax.swing.ScrollPaneConstants
 
-class GraphViewHolder() : JScrollPane(GraphSheet()), GraphViewObserver {
+class GraphViewHolder : JScrollPane(GraphSheet()), GraphViewObserver {
 
     init {
 
