@@ -90,7 +90,7 @@ class ToolbarView : JPanel(), ToolbarView {
 
 
         logTextView.background = Color.WHITE
-        logTextView.isEditable = false
+        logTextView.isEditable = true
         add(JScrollPane(logTextView))
         logTextView.lineWrap = true
         logTextView.font = UIConstants.logsOutputTextFont

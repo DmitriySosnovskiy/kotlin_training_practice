@@ -1,5 +1,6 @@
 package presenters
 
+import java.io.File
 import java.util.*
 
 enum class ToolbarViewElement {
@@ -22,7 +23,9 @@ interface ToolbarView {
 
 class ToolbarPresenter(private val toolbarView: ToolbarView) : EventSubscriber {
 
-    fun chainToolbarEvent(event: Event) = BroadcastPresenter.generateEvent(event)
+    fun chainToolbarEvent(event: Event) {
+        BroadcastPresenter.generateEvent(event)
+    }
 
     init {
         BroadcastPresenter.registerSubscriber(this)

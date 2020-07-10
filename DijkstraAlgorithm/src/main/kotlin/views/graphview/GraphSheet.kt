@@ -115,15 +115,19 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
         panelGraphics.color = UIConstants.nodeStrokeFillColor
         panelGraphics.fill(strokeCircle)
 
-        if(node.isActive) {
-            if(node.bestWay == "") panelGraphics.color = UIConstants.passedNodeFillColor
-            else panelGraphics.color = UIConstants.nodeActiveFillColor
+        if(node.isActive) panelGraphics.color = UIConstants.nodeActiveFillColor
+        else {
+            if (isAlgorithmRunning) {
+                if(node.bestWay != "-") panelGraphics.color = UIConstants.passedNodeFillColor
+                else panelGraphics.color = UIConstants.nodeFillColor
+            }
+            else panelGraphics.color = UIConstants.nodeFillColor
         }
-        else panelGraphics.color = UIConstants.nodeFillColor
 
         panelGraphics.fill(graphicsCircle)
 
-        panelGraphics.color = UIConstants.textColor
+        if(node.isActive) panelGraphics.color = UIConstants.activeNodeTextColor
+        else panelGraphics.color = UIConstants.textColor
         panelGraphics.drawString(nodeNumberString,
             node.coordinate.x - textWidth/2,
             node.coordinate.y + textHeight/4)
@@ -131,7 +135,7 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
         if(isAlgorithmRunning) {
             val sign =
-                "[${if (node.bestWay.isEmpty()) "-" else node.bestWay} / ${if (node.nodeFrom.isEmpty()) "-" else node.nodeFrom}]"
+                "[${node.bestWay}/ ${node.nodeFrom}]"
             panelGraphics.font = UIConstants.nodeSignTextFont
             val signHeight = fontMetrics.getStringBounds(sign, panelGraphics).height.toInt()
             val signWidth = fontMetrics.getStringBounds(sign, panelGraphics).width.toInt()
@@ -145,10 +149,14 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
 
     private fun drawEdge(edge: UIEdge, panelGraphics: Graphics2D)
     {
-        panelGraphics.stroke = BasicStroke((edge.width/2).toFloat())
-
-        if(edge.isActive) panelGraphics.color = UIConstants.activeEdgeColor
-        else panelGraphics.color = UIConstants.edgeColor
+        if(edge.isActive) {
+            panelGraphics.color = UIConstants.activeEdgeColor
+            panelGraphics.stroke = BasicStroke((UIConstants.activeEdgeWidth/2).toFloat())
+        }
+        else {
+            panelGraphics.color = UIConstants.edgeColor
+            panelGraphics.stroke = BasicStroke((edge.width/2).toFloat())
+        }
         panelGraphics.drawLine(edge.sourceNode.coordinate.x,
             edge.sourceNode.coordinate.y,
             edge.endNode.coordinate.x,
@@ -180,8 +188,14 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
     private fun drawDualEdge(dualEdge: UIDualEdge, panelGraphics: Graphics2D){
         panelGraphics.stroke = BasicStroke((UIConstants.edgeWidth/2).toFloat())
 
-        if (dualEdge.edge1.isActive) panelGraphics.color = UIConstants.activeEdgeColor
-        else panelGraphics.color = UIConstants.edgeColor
+        if (dualEdge.edge1.isActive){
+            panelGraphics.color = UIConstants.activeEdgeColor
+            panelGraphics.stroke = BasicStroke((UIConstants.activeEdgeWidth/2).toFloat())
+        }
+        else {
+            panelGraphics.color = UIConstants.edgeColor
+            panelGraphics.stroke = BasicStroke((dualEdge.edge1.width/2).toFloat())
+        }
 
         val coordinates = mathProvider.calculateDualEdgeCoordinates(dualEdge)
         val arrow1 = mathProvider.calculateArrowForEdge(
@@ -202,8 +216,14 @@ class GraphSheet: JPanel(), MouseListener, MouseMotionListener, GraphView {
             weightPosition1.x, weightPosition1.y)
 
 
-        if (dualEdge.edge2.isActive) panelGraphics.color = UIConstants.activeEdgeColor
-        else panelGraphics.color = UIConstants.edgeColor
+        if (dualEdge.edge2.isActive){
+            panelGraphics.color = UIConstants.activeEdgeColor
+            panelGraphics.stroke = BasicStroke((UIConstants.activeEdgeWidth/2).toFloat())
+        }
+        else {
+            panelGraphics.color = UIConstants.edgeColor
+            panelGraphics.stroke = BasicStroke((dualEdge.edge2.width/2).toFloat())
+        }
 
         val arrow2 = mathProvider.calculateArrowForEdge(
             coordinates.second.first,

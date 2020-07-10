@@ -3,6 +3,7 @@ package presenters
 import models.Edge
 import models.Graph
 import views.graphview.*
+import java.io.File
 import java.util.*
 import javax.swing.JOptionPane
 import kotlin.collections.ArrayList
@@ -139,6 +140,13 @@ class MainPresenter(
                 return
             }
         }
+        
+        for(dualEdge in dualEdges) {
+            if (dualEdge.edge1.sourceNode == new.sourceNode && dualEdge.edge1.endNode == new.endNode
+                || dualEdge.edge2.sourceNode == new.sourceNode && dualEdge.edge2.endNode == new.endNode)
+                return
+        }
+        
         edges.add(new)
         graphView.update()
     }
@@ -378,6 +386,13 @@ class MainPresenter(
     }
 
     private fun downloadGraph(fileName:String) {
+        val file = File(fileName)
+        if(!file.exists())
+        {
+            printLogs("Ошибка в чтении файла, файл не существует")
+            return
+        }
+
         val fileHandler = GraphFileHandler(fileName)
         val graphInfo = fileHandler.downloadGraphInfo()
         if (graphInfo==null){

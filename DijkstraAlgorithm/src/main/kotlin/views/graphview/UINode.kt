@@ -7,13 +7,13 @@ class UINode(
 ) {
     val radius = UIConstants.circleRadius + UIConstants.circleStrokeWidth
     var isActive: Boolean = false
-    var bestWay: String = ""
-    var nodeFrom: String = ""
+    var bestWay: String = "-"
+    var nodeFrom: String = "-"
 
     fun reset() {
         isActive = false
-        bestWay = ""
-        nodeFrom = ""
+        bestWay = "-"
+        nodeFrom = "-"
     }
 
 

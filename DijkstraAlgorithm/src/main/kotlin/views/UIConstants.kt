@@ -13,6 +13,7 @@ object UIConstants {
     const val horizontalScrollIncrement = 20
     const val verticalScrollIncrement = 20
     const val edgeWidth = 6
+    const val activeEdgeWidth = 12
     const val arrowHeight = 10
     const val arrowWidth = 10
     const val edgeWeightTextOffsetHeight = 10
@@ -20,12 +21,13 @@ object UIConstants {
     const val dualEdgeRotationAngleInGrads = Math.PI / 4
 
     val nodeFillColor = Color(106, 233, 114)
-    val passedNodeFillColor = Color(218, 233, 39)
-    val nodeActiveFillColor = Color(255, 0, 0)
+    val passedNodeFillColor = Color(232, 233, 33)
+    val nodeActiveFillColor = Color(233, 85, 87)
     val nodeStrokeFillColor = Color(112, 112, 112)
+    val activeNodeTextColor = Color(255, 255, 255)
     val textColor = Color(112, 112, 112)
     val edgeColor = Color(112, 112, 112)
-    val activeEdgeColor = Color(59, 93, 255)
+    val activeEdgeColor = Color(120, 115, 235)
 
     val nodeTextFont = Font("Segoe UI", Font.PLAIN, 40)
     val edgeWeightTextFont = Font("Segoe UI", Font.PLAIN, 20)
