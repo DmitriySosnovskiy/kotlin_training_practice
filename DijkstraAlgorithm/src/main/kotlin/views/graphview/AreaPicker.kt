@@ -34,13 +34,18 @@ class AreaPicker : JPanel() {
     }
 }
 
-class ParametersPanel(private val areaPicker: AreaPicker) : JPanel() {
+class ParametersPanel(val areaPicker: AreaPicker) : JPanel() {
+
+    val densitySlider = JSlider(1, 100)
+
+    val spinnerModel = SpinnerNumberModel(3, 3, 100, 1)
+    val verticesAmountSpinner = JSpinner(spinnerModel)
+
     init {
         border = EmptyBorder(10, 10, 10,10)
 
         layout = GridLayout(7, 1)
 
-        val densitySlider = JSlider(1, 100)
         densitySlider.paintLabels = true
         densitySlider.value = 1
 
@@ -55,8 +60,7 @@ class ParametersPanel(private val areaPicker: AreaPicker) : JPanel() {
 
         add(JLabel("Количество вершин"))
 
-        val spinnerModel = SpinnerNumberModel(3, 3, 100, 1)
-        val verticesAmountSpinner = JSpinner(spinnerModel)
+
         val txt = (verticesAmountSpinner.editor as JSpinner.NumberEditor).textField
         (txt.formatter as NumberFormatter).allowsInvalid = false
 
@@ -103,14 +107,15 @@ class ParametersPanel(private val areaPicker: AreaPicker) : JPanel() {
 
 class GeneratingGraphParametersRequestPane : JPanel() {
 
+    val areaPicker = AreaPicker()
+    val paramPanel = ParametersPanel(areaPicker)
+
     init {
         layout = BorderLayout()
-        val areaPicker = AreaPicker()
         areaPicker.preferredSize = Dimension(UIConstants.areaPickerScreenWidth, UIConstants.areaPickedScreenHeight)
 
         add(areaPicker)
 
-        val paramPanel = ParametersPanel(areaPicker)
         add(paramPanel, BorderLayout.NORTH)
     }
 }

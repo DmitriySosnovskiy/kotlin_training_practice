@@ -2,6 +2,7 @@ package presenters
 
 import models.Edge
 import models.Graph
+import views.UIConstants
 import views.graphview.*
 import java.io.File
 import java.util.*
@@ -89,6 +90,15 @@ class MainPresenter(
         val parametersRequester = GeneratingGraphParametersRequestPane()
         val responseCode = JOptionPane.showConfirmDialog(
             null, parametersRequester, "Данные генерации", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+
+        when (responseCode) {
+            0 -> {
+                val density = parametersRequester.paramPanel.densitySlider.value
+                val verticiesAmount = parametersRequester.paramPanel.verticesAmountSpinner.value.toString().toInt()
+                val offset = parametersRequester.areaPicker.squareZoomFactor * UIConstants.areaChooseCoordinateUnit
+            }
+        }
+
     }
 
     private fun clearScene() {
