@@ -15,15 +15,17 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     var dist = Int.MAX_VALUE
     var previous: Vertex? = null
     val neighbours = HashMap<Vertex, Int>()
-    fun printPath(){
-        when(previous){
-            this -> print(name)
-            null -> print("До вершины $name невозможно добраться")
+    fun printPath(): String{
+        var endString: String
+        endString = when(previous){
+            this -> (name).toString()
+            null -> "не существует"
             else -> {
-                previous!!.printPath()
-                print(" -> $name($dist)")
+                val str: String = previous!!.printPath()
+                "$str ➔ ${name}($dist)"
             }
         }
+        return endString
     }
     override fun compareTo(other: Vertex): Int {
         if (dist == other.dist) return name.compareTo(other.name)
@@ -31,7 +33,7 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     }
 }
 
-class Graph(val edges: kotlin.collections.List<Edge>){
+class Graph(val edges: List<Edge>){
     val graph = HashMap<Int, Vertex>(edges.size)
     init {
         for (e in edges) {
@@ -46,7 +48,6 @@ class Graph(val edges: kotlin.collections.List<Edge>){
     fun dijkstra(startName: Int) {
         if (!graph.containsKey(startName)) {
             testOutput = "Граф не содержит стартовую вершину '${startName}'"
-            println("Граф не содержит стартовую вершину '${startName}'")
             return
         }
         val source: Vertex? = graph[startName]
@@ -75,13 +76,11 @@ class Graph(val edges: kotlin.collections.List<Edge>){
             }
         }
     }
-    fun printPath(endName: Int) {
-        if (!graph.containsKey(endName)) {
-            testOutput = "Граф не содержит конечную вершину '${endName}'"
-            println("Граф не содержит конечную вершину '${endName}'")
-            return
-        }
-        graph[endName]!!.printPath()
-        println()
+    fun printPath(endName: Int): String {
+
+        if (!graph.containsKey(endName))
+            return "Граф не содержит конечную вершину '${endName}'"
+
+        return graph[endName]!!.printPath()
     }
 }
