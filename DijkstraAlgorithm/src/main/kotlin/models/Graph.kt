@@ -41,7 +41,8 @@ class Vertex(val name: Int) : Comparable<Vertex> {
     }
 
     override fun compareTo(other: Vertex): Int {
-        if (dist == other.dist) return name.compareTo(other.name)
+        if (dist == other.dist)
+            return name.compareTo(other.name)
         return dist.compareTo(other.dist)
     }
 
@@ -75,14 +76,16 @@ class Graph(private val edges: List<Edge>){
         }
 
         // Проход для записи всех соседей
-        for (e in edges)
+        for (e in edges) {
             // Кладет в таблицу соседей (имя соседа, вес ребра до него)
             graph[e.v1]!!.neighbours.put(graph[e.v2]!!, e.dist)
 
-            /* Промежуточный вывод хэш-таблицы соседей вершин
-             * print("key = ${e.v2}  value = ")
-             * println(graph[e.v1]!!.neighbours.getValue(graph[e.v2]!!))
-             */
+            //Промежуточный вывод хэш-таблицы соседей вершин
+            //println("currV = ${graph[e.v1]}")
+            //print("key = ${e.v2+1}  value = ")
+            //println(graph[e.v1]!!.neighbours.getValue(graph[e.v2]!!))
+            //println("-------------------------------------------")
+        }
     }
 
     /* Запускает алгоритм Дейкстры,
@@ -130,6 +133,7 @@ class Graph(private val edges: List<Edge>){
 
                 // Текущий сосед
                 val currentNgb = ngb.key
+
                 // Пересчитываем расстояние до текущего соседа
                 val alternateDist = currV.dist + ngb.value
 
@@ -142,10 +146,8 @@ class Graph(private val edges: List<Edge>){
                     treeSet.add(currentNgb)
                     this.makeSnapshot(currentNgb.name,currV.name,true)
                 }
-                else{
+                else
                     this.makeSnapshot(currentNgb.name,currV.name,false)
-                }
-
             }
         }
     }
@@ -157,40 +159,10 @@ class Graph(private val edges: List<Edge>){
         if (!graph.containsKey(endName))
             return "Граф не содержит конечную вершину '${endName+1}'"
 
-        /*if (showAllPaths)
-            strEnd = printAllPaths()
-        else*/
-            strEnd = graph[endName]!!.printPath()
+        strEnd = graph[endName]!!.printPath()
 
-        return /*"Кратчайший путь из $startName в ${endName+1}:\n" + graph[endName]!!.dist.toString() + "\n" + */strEnd
+        return strEnd
     }
-
-    // Печатает путь от начальной вершины до каждой другой
-    fun printAllPaths(): String{
-
-        var endString: String = ""
-
-        for (v in graph.values)
-            endString += v.printPath() + "\n"
-
-        return endString
-    }
-
-    /*   Пример использования:
-     *   val GRAPH:List<Edge> = listOf(
-     *       Edge(1, 2, 7),
-     *       Edge(1, 3, 9),
-     *       Edge(2, 3, 1)
-     *   )
-     *
-     *   val START = 1
-     *   val END = 3
-     *
-     *   with (Graph(GRAPH)){
-     *       dijkstra(START)
-     *       printPath(END)
-     *   }
-     */
 
     private fun makeSnapshot(vertex:Int,prev:Int,relax:Boolean){
         snapshotKeeper.putSnapshot(Snapshot(graph,vertex,prev,relax))

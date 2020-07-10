@@ -73,7 +73,7 @@ class MainPresenter(
                 saveGraph(event.fileName)
             }
             is Event.EndAlgorithm-> {
-                printLogs("Окончание алгоритма")
+                printLogs("Окончание алгоритма\nПосещены все вершины, до которых\nсуществует путь от стартовой вершины")
                 finishAlgorithm()
             }
             is Event.GenerateGraph->{
@@ -364,13 +364,13 @@ class MainPresenter(
         if (previousSnapMap!=null){
             prevBestWay = previousSnapMap[indexCurNode]!![1]
         }
-        logs.append("Лучший расстояние до узла: ${snapMap[indexCurNode]!![1].toInt()}(было $prevBestWay)")
+        logs.append("Лучшее расстояние до узла: ${snapMap[indexCurNode]!![1].toInt()} (было $prevBestWay)")
         return logs.toString()
     }
 
     private fun nextStep(){
         if (!dijkstraAlgorithmController.isNextStepPossible()){
-            printLogs("Следующий шаг невозможен:\nТекущий шаг последний")
+            printLogs("Посещены все вершины, до которых\nсуществует путь от стартовой вершины\nСледующий шаг невозможен\nТекущий шаг последний")
             return
         }
         printLogs("Выполнен следующий шаг")
@@ -424,7 +424,7 @@ class MainPresenter(
         updateAllNodes(snapMap)
         graphView.displayDijkstraAlgorithmResult(dijkstraAlgorithmController.answer)
 
-        printLogs("Результыт работы:\n${dijkstraAlgorithmController.answer}")
+        //printLogs("Результат работы:\n${dijkstraAlgorithmController.answer}")
 
         graphView.update()
     }
@@ -501,7 +501,7 @@ class MainPresenter(
         val high = 3000
         val width = 3000
         val numbNodes = 5 //max = 784
-        val density = 4//максимум 40
+        val density = 1//максимум 40
         val weight = 10
         val randomNodes = ArrayList<Coordinate>()
         for(i in 1..28){
