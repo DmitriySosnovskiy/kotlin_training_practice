@@ -1,7 +1,6 @@
 package presenters
 
 import java.util.*
-import javax.swing.JFileChooser
 
 enum class ToolbarViewElement {
     START,
