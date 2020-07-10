@@ -9,6 +9,7 @@ class Main {
             val frame = JFrame()
             frame.size = Dimension(1200, 800)
 
+            frame.extendedState = JFrame.MAXIMIZED_BOTH;
             frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
 
             frame.add(MainWindow())
