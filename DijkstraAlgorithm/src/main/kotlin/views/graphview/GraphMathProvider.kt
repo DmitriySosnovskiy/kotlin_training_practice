@@ -189,7 +189,7 @@ class GraphMathProvider {
 
         val normalToLineVector =
             if (lineVector.x == 0.0)
-                DoubleCoordinate(-1.0, 0.0)
+                DoubleCoordinate(0.0, 1.0)
             else
                 DoubleCoordinate(-1 * abs(lineVector.y/lineVector.x), 1.0)
 

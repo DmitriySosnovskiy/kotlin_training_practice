@@ -16,7 +16,7 @@ object UIConstants {
     const val activeEdgeWidth = 12
     const val arrowHeight = 10
     const val arrowWidth = 10
-    const val edgeWeightTextOffsetHeight = 10
+    const val edgeWeightTextOffsetHeight = 25
 
     const val dualEdgeRotationAngleInGrads = Math.PI / 4
 
