@@ -5,7 +5,7 @@ import java.awt.Color
 import java.awt.Font
 
 object UIConstants {
-    const val circleRadius = 30
+    const val circleRadius = 32
     const val circleStrokeWidth = 3
     const val spaceBetweenButtonsInToolbar = 5
     const val graphScreenSheetWidth = 3000

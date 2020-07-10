@@ -136,14 +136,11 @@ class Graph(private val edges: List<Edge>){
                 // Если новое расстояние < текущего,
                 // то меняем в treeSet расстояние до вершины
                 if (alternateDist < currentNgb.dist) {
-
-
                     treeSet.remove(currentNgb)
                     currentNgb.dist = alternateDist
                     currentNgb.previous = currV
                     treeSet.add(currentNgb)
                     this.makeSnapshot(currentNgb.name,currV.name,true)
-
                 }
                 else{
                     this.makeSnapshot(currentNgb.name,currV.name,false)

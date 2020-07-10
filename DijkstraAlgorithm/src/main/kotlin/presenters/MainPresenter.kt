@@ -76,6 +76,11 @@ class MainPresenter(
                 printLogs("Окончание алгоритма")
                 finishAlgorithm()
             }
+            is Event.GenerateGraph->{
+                Thread(Runnable {
+                    generateGraph()
+                }).start()
+            }
         }
     }
 
@@ -146,7 +151,6 @@ class MainPresenter(
             if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
                 return
         }
-
         for(e in edges)
         {
             if(new.sourceNode == e.endNode && new.endNode == e.sourceNode) {
@@ -165,6 +169,24 @@ class MainPresenter(
         
         edges.add(new)
         graphView.update()
+    }
+
+
+    fun addEdge_(new:UIEdge){
+        for (e in edges) {
+            if (new.sourceNode == e.sourceNode && new.endNode == e.endNode)
+                return
+        }
+        for(e in edges)
+        {
+            if(new.sourceNode == e.endNode && new.endNode == e.sourceNode) {
+                dualEdges.add(UIDualEdge(new, e))
+                edges.remove(e)
+                graphView.update()
+                return
+            }
+        }
+        edges.add(new)
     }
 
     fun deleteEdge(deleted:UIEdge){
@@ -266,6 +288,7 @@ class MainPresenter(
             onAlgorithmEndConfirmed()
             return
         }
+
         val gr= ArrayList<Edge>()
         for (e in edges){
             gr.add(Edge(nodes.indexOf(e.sourceNode),nodes.indexOf(e.endNode),e.weight.toInt()))
@@ -282,7 +305,6 @@ class MainPresenter(
 
     private fun updateAllNodes(snapMap:HashMap<Int,List<String>>){
         // snapMap[0][0] - текущий узел, snapMap[0][1] - prevNode, snapMap[0][2] - relax
-
         // snapMap[3+] - список из 3 элементов, где элемент с индексом 0 - номер вершины, 1 - текущее лучшее расстояние до нее, 2 - номер вершины, из которого пришли в текущую
 
         val curNode = snapMap[0]!![0].toInt()
@@ -462,5 +484,44 @@ class MainPresenter(
         //Записываем в файл
         val fileHandler = GraphFileHandler(fileName)
         fileHandler.saveGraphInfo(graphAsString)
+    }
+
+    private fun generateGraph(){
+        nodes.clear()
+        dualEdges.clear()
+        edges.clear()
+
+        val high = 3000
+        val width = 3000
+        val numbNodes = 5 //max = 784
+        val density = 4//максимум 40
+        val weight = 10
+        val randomNodes = ArrayList<Coordinate>()
+        for(i in 1..28){
+            for (j in 1..28){
+                randomNodes.add(Coordinate(i*100,j*100))
+            }
+        }
+        //генерируем узлы
+        for (i in 0 until numbNodes){
+            val randN = (0..randomNodes.size-1).random()
+            nodes.add(UINode((randomNodes[randN])))
+            randomNodes.remove(randomNodes[randN])
+        }
+        val new= ArrayList<Int>()
+        //генерируем ребра
+        for (n in nodes){
+            new.clear()
+            for (i in 0 until nodes.size) {
+                new.add(i)
+            }
+            new.remove(nodes.indexOf(n))
+            for(i in 1..density){
+                val randC = (0..new.size-1).random()
+                val randW = (1..weight).random().toString()
+                addEdge_(UIEdge(n,nodes[new[randC]],randW))
+                new.remove(new[randC])
+            }
+        }
     }
 }
