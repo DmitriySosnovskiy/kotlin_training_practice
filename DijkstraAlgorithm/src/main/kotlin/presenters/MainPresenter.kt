@@ -43,6 +43,7 @@ class MainPresenter(
 
                 if (node != null) {
                     printLogs("Алгоритм запущен")
+                    resetNodesAndEdges()
                     graphView.setAlgorithmRunningFlag(true)
                     BroadcastPresenter.generateEvent(Event.AfterAlgorithmStarted)
                     startAlgorithm(node)
@@ -53,11 +54,7 @@ class MainPresenter(
                 }
             }
             is Event.Clear -> {
-                nodes.clear()
-                dualEdges.clear()
-                edges.clear()
-                graphView.setAlgorithmRunningFlag(false)
-                graphView.update()
+                clearScene()
                 printLogs("Выполнена очистка сцены")
             }
             is Event.NextStep->{
@@ -79,6 +76,25 @@ class MainPresenter(
                 printLogs("Окончание алгоритма")
                 finishAlgorithm()
             }
+        }
+    }
+
+    private fun clearScene() {
+        nodes.clear()
+        dualEdges.clear()
+        edges.clear()
+        graphView.setAlgorithmRunningFlag(false)
+        graphView.update()
+    }
+
+    private fun resetNodesAndEdges() {
+        nodes.forEach { it.reset() }
+        dualEdges.forEach{
+            it.edge1.reset()
+            it.edge2.reset()
+        }
+        edges.forEach {
+            it.reset()
         }
     }
 
